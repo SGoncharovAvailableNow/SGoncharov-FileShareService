@@ -60,10 +60,6 @@ namespace SGoncharovFileSharingService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FileUUID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");

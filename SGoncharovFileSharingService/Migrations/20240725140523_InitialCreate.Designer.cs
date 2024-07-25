@@ -12,7 +12,7 @@ using SGoncharovFileSharingService.FileSharingContext;
 namespace SGoncharovFileSharingService.Migrations
 {
     [DbContext(typeof(FileSharingContext.FileSharingContext))]
-    [Migration("20240725135140_InitialCreate")]
+    [Migration("20240725140523_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -60,10 +60,6 @@ namespace SGoncharovFileSharingService.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileUUID")
                         .IsRequired()
                         .HasColumnType("text");
 

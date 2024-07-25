@@ -8,8 +8,6 @@ namespace SGoncharovFileSharingService.Models.Entities.UserEntities
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-
-        public string FileUUID { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
