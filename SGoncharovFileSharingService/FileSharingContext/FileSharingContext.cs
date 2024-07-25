@@ -4,12 +4,12 @@ using SGoncharovFileSharingService.Models.Entities.UserEntities;
 
 namespace SGoncharovFileSharingService.FileSharingContext
 {
-    public class FileShareContext : DbContext
+    public class FileSharingContext : DbContext
     {
         public DbSet<UserEntity> UserEntities { get; set; }
         public DbSet<FileEntity> FileEntities { get; set; }
 
-        public FileShareContext(DbContextOptions options) :base(options) 
+        public FileSharingContext(DbContextOptions<FileSharingContext> options) : base(options) 
         {
             Database.EnsureCreated();
         }

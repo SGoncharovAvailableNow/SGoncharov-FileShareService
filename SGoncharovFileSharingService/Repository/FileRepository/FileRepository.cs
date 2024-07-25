@@ -6,9 +6,9 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
 {
     public class FileRepository : IFileRepository
     {
-        private FileShareContext _context;
+        private FileSharingContext.FileSharingContext _context;
 
-        public FileRepository(FileShareContext context)
+        public FileRepository(FileSharingContext.FileSharingContext context)
         {
             _context = context;
         }
