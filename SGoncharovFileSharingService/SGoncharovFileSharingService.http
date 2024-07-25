@@ -1,4 +1,4 @@
-@SGoncharovFileSharingService_HostAddress = http://localhost:5298
+@SGoncharovFileSharingService_HostAddress = http://localhost:5222
 
 GET {{SGoncharovFileSharingService_HostAddress}}/weatherforecast/
 Accept: application/json
