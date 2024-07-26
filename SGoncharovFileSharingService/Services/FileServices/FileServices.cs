@@ -19,10 +19,10 @@ namespace SGoncharovFileSharingService.Services.FileServices
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<ApiResponse<string>> UploadFileAsync(IFormFile formFile, string deletePassword)
+        public async Task<ApiResponse<string>> UploadFileAsync(IFormFile formFile, string deletePassword, string userId)
         {
             var fileEntity = new FileEntity();
-            fileEntity.FilePath = Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.Uuid);
+            fileEntity.FilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{fileEntity.Uuid}_{formFile.FileName}");
             try
             {
                 using (var fileStream = new FileStream(fileEntity.FilePath, FileMode.Create))
@@ -39,7 +39,10 @@ namespace SGoncharovFileSharingService.Services.FileServices
                     ErrorDetails = ex.Message
                 };
             }
+            Guid userGuid;
+            Guid.TryParse(userId, out userGuid);
             fileEntity.DeletePassword = Argon2.Hash(deletePassword);
+            fileEntity.UserId = userGuid;
             await _fileRepository.CreateFileInfo(fileEntity);
             return new ApiResponse<string>
             {
@@ -49,10 +52,10 @@ namespace SGoncharovFileSharingService.Services.FileServices
             };
         }
 
-        public ApiResponse<string> GetFile(string uuid)
+        public async Task<ApiResponse<string>> GetFileAsync(string uuid)
         {
-            string path = Path.Combine(_webHostEnvironment.WebRootPath, uuid);
-            if (!File.Exists(path))
+            var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
+            if (!File.Exists(fileEntity.FilePath))
             {
                 return new ApiResponse<string>
                 {
@@ -63,7 +66,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
             }
             return new ApiResponse<string>
             {
-                Data = path,
+                Data = fileEntity.FilePath,
                 StatusCode = StatusCodes.Status200OK,
                 ErrorDetails = string.Empty
             };
@@ -71,8 +74,8 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
         public async Task<ApiResponse<string>> DeleteFileAsync(string uuid, string deletePass)
         {
-            var hashedPass = await _fileRepository.GetPasswordAsync(uuid);
-            if (!Argon2.Verify(hashedPass, deletePass)) 
+            var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
+            if (!Argon2.Verify(fileEntity.DeletePassword, deletePass))
             {
                 return new ApiResponse<string>
                 {
@@ -81,16 +84,8 @@ namespace SGoncharovFileSharingService.Services.FileServices
                     ErrorDetails = "Invalid password!"
                 };
             }
-            await _fileRepository.DeleteFileInfoAsync(uuid, deletePass);
-            var path = Path.Combine(_webHostEnvironment.WebRootPath, uuid);
-            if (File.Exists(path))
-            {
-                new Task(() =>
-                {
-                    File.Delete(path);
-                });
-            }
-            else 
+            await _fileRepository.DeleteFileInfoAsync(uuid);
+            if (!File.Exists(fileEntity.FilePath))
             {
                 return new ApiResponse<string>
                 {
@@ -98,7 +93,9 @@ namespace SGoncharovFileSharingService.Services.FileServices
                     StatusCode = StatusCodes.Status404NotFound,
                     ErrorDetails = "Already Deleted"
                 };
+
             }
+            File.Delete(fileEntity.FilePath);
             return new ApiResponse<string>
             {
                 Data = "Deleted",

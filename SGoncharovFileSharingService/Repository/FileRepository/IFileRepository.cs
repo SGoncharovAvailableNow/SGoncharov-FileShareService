@@ -5,7 +5,8 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
     public interface IFileRepository
     {
         Task CreateFileInfo(FileEntity fileEntity);
-        Task DeleteFileInfoAsync(string uuid, string deletePass);
-        Task<string> GetPasswordAsync(string uuid);
+        Task DeleteFileInfoAsync(string uuid);
+        Task<FileEntity> GetFileInfoAsync(string uuid);
+        Task DeleteFileInfoByPathAsync(string fileName);
     }
 }

@@ -26,8 +26,7 @@ namespace SGoncharovFileSharingService.JwtTokenProvider
                 signingCredentials: signingCredentials,
                 expires: DateTime.UtcNow.AddHours(Env.GetInt("JWT_EXPIRE"))
                 );
-            return string.Empty;
-
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

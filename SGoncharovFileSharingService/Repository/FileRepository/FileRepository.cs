@@ -6,9 +6,9 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
 {
     public class FileRepository : IFileRepository
     {
-        private FileSharingContext.FileSharingContext _context;
+        private FileSharingContext.FileShareContext _context;
 
-        public FileRepository(FileSharingContext.FileSharingContext context)
+        public FileRepository(FileSharingContext.FileShareContext context)
         {
             _context = context;
         }
@@ -19,17 +19,24 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteFileInfoAsync(string uuid,string deletePass)
+        public async Task<FileEntity> GetFileInfoAsync(string uuid)
+        {
+            return await _context.FileEntities?
+                .FirstOrDefaultAsync(file => file.Uuid == uuid);
+        }
+
+        public async Task DeleteFileInfoAsync(string uuid)
         {
             await _context.FileEntities
-                .Where(file => file.Uuid == uuid && file.DeletePassword == deletePass)
+                .Where(file => file.Uuid == uuid )
                 .ExecuteDeleteAsync();
         }
 
-        public async Task<string> GetPasswordAsync(string uuid) 
+        public async Task DeleteFileInfoByPathAsync(string path)
         {
-            return (await _context.FileEntities
-                .FirstAsync(file => file.Uuid == uuid)).DeletePassword;
+            await _context.FileEntities
+            .Where(file => file.FilePath == path)
+            .ExecuteDeleteAsync();    
         }
     }
 }

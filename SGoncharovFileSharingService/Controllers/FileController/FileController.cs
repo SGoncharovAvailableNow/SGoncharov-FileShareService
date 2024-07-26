@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SGoncharovFileSharingService.Services.FileServices;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.FileController
 {
@@ -14,16 +15,18 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         {
             _fileServices = fileServices;
         }
-
+        private string GetUserId() => User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+        
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFileAsync([FromForm,Required] IFormFile file, [FromQuery,Required] string deletePassword) 
+        public async Task<IActionResult> UploadFileAsync([FromForm,Required] IFormFile file,
+         [FromQuery(Name = "deletePassword"),Required] string deletePassword) 
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest("Incorrect Data!");
             }
 
-            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword);
+            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
             
             return servicesResult.StatusCode switch
             {
@@ -34,14 +37,15 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpDelete("deletefile")]
-        public async Task<IActionResult> DeleteFileAsync([FromRoute,Required] string uuid, [FromRoute,Required]string deletePass) 
+        public async Task<IActionResult> DeleteFileAsync([FromQuery(Name = "uuid"),Required] string uuid, 
+        [FromQuery(Name = "deletePassword"),Required]string deletePassword) 
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Incorrect Data!");
             }
 
-            var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePass);
+            var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
             
             return servicesResult.StatusCode switch
             {
@@ -53,14 +57,14 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpGet("getfile")]
-        public async Task<IActionResult> GetFileAsync([FromRoute,Required]string uuid) 
+        public async Task<IActionResult> GetFileAsync([FromQuery(Name = "uuid"),Required]string uuid) 
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Incorrect Data!");
             }
 
-            var servicesResult = _fileServices.GetFile(uuid);
+            var servicesResult = await _fileServices.GetFileAsync(uuid);
            
             return servicesResult.StatusCode switch 
             {

@@ -7,13 +7,14 @@ namespace SGoncharovFileSharingService.Models.Entities.FileEntities
 {
     public class FileEntity
     {
-        [Key()]
+        [Key]
         public string Uuid { get; set; } = Nanoid.Generate();
-        public Guid UserId { get; set; }
         public string FilePath { get; set; }
         public string DeletePassword { get; set; }
+        public Guid UserId { get; set; }
+
         [ForeignKey("UserId")]
-        public UserEntity UserEntity { get; set; }
+        public UserEntity? UserEntity { get; set; }
 
     }
 }

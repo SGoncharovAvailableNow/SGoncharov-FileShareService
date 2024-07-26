@@ -38,7 +38,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
             }
 
             var loginUserDto = _mapper.Map<LoginUserDto>(userEntity);
-            loginUserDto.Token = _jwtTokenProvider.GetJwtToken(userEntity.Id, userEntity.Name);
+            loginUserDto.Token = _jwtTokenProvider.GetJwtToken(userEntity.UserId, userEntity.Name);
 
             return new ApiResponse<LoginUserDto>
             {
@@ -74,7 +74,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
                 };
             }
             var loginUserDto = _mapper.Map<LoginUserDto>(user);
-            loginUserDto.Token = _jwtTokenProvider.GetJwtToken(user.Id, user.Name);
+            loginUserDto.Token = _jwtTokenProvider.GetJwtToken(user.UserId, user.Name);
 
             return new ApiResponse<LoginUserDto>
             {

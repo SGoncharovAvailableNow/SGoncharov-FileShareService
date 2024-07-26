@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SGoncharovFileSharingService.FileSharingContext;
@@ -11,12 +10,10 @@ using SGoncharovFileSharingService.FileSharingContext;
 
 namespace SGoncharovFileSharingService.Migrations
 {
-    [DbContext(typeof(FileSharingContext.FileSharingContext))]
-    [Migration("20240725140523_InitialCreate")]
-    partial class InitialCreate
+    [DbContext(typeof(FileShareContext))]
+    partial class FileShareContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,15 +35,10 @@ namespace SGoncharovFileSharingService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("FileUUID")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Uuid");
-
-                    b.HasIndex("FileUUID");
 
                     b.HasIndex("UserId");
 
@@ -55,7 +47,7 @@ namespace SGoncharovFileSharingService.Migrations
 
             modelBuilder.Entity("SGoncharovFileSharingService.Models.Entities.UserEntities.UserEntity", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -71,19 +63,15 @@ namespace SGoncharovFileSharingService.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserId");
 
                     b.ToTable("UserEntities");
                 });
 
             modelBuilder.Entity("SGoncharovFileSharingService.Models.Entities.FileEntities.FileEntity", b =>
                 {
-                    b.HasOne("SGoncharovFileSharingService.Models.Entities.UserEntities.UserEntity", null)
-                        .WithMany("Files")
-                        .HasForeignKey("FileUUID");
-
                     b.HasOne("SGoncharovFileSharingService.Models.Entities.UserEntities.UserEntity", "UserEntity")
-                        .WithMany()
+                        .WithMany("Files")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

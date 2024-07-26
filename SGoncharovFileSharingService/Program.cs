@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using SGoncharovFileSharingService;
 using SGoncharovFileSharingService.AutoMapper;
 using SGoncharovFileSharingService.FileSharingContext;
 using SGoncharovFileSharingService.JwtTokenProvider;
@@ -11,27 +12,21 @@ using SGoncharovFileSharingService.Services.FileServices;
 using SGoncharovFileSharingService.Services.UserServices;
 using System.Text;
 Env.Load(".env");
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions()
-{
-    WebRootPath = Env.GetString("SHARING_FILES")
-});
-builder.Services.AddDbContext<FileSharingContext>(
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<FileShareContext>(
     context =>
     {
         context.UseNpgsql(Env.GetString("DATABASE"));
     }
 );
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddHostedService<AutoDeletingService>();
 builder.Services.AddScoped<IJwtTokenProvider,JwtTokenProvider>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFileServices,FileServices>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
-
-
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
 {
@@ -53,8 +48,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
     app.UseDeveloperExceptionPage();
 }
 else 
@@ -62,9 +55,8 @@ else
     app.UseHsts();
 }
 app.UseStaticFiles();
-app.UseHttpsRedirection();
 app.UseAuthorization();
-
+app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();

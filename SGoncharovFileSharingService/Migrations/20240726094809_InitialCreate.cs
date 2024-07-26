@@ -15,14 +15,14 @@ namespace SGoncharovFileSharingService.Migrations
                 name: "UserEntities",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserEntities", x => x.Id);
+                    table.PrimaryKey("PK_UserEntities", x => x.UserId);
                 });
 
             migrationBuilder.CreateTable(
@@ -30,31 +30,20 @@ namespace SGoncharovFileSharingService.Migrations
                 columns: table => new
                 {
                     Uuid = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     FilePath = table.Column<string>(type: "text", nullable: false),
                     DeletePassword = table.Column<string>(type: "text", nullable: false),
-                    FileUUID = table.Column<Guid>(type: "uuid", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FileEntities", x => x.Uuid);
                     table.ForeignKey(
-                        name: "FK_FileEntities_UserEntities_FileUUID",
-                        column: x => x.FileUUID,
-                        principalTable: "UserEntities",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_FileEntities_UserEntities_UserId",
                         column: x => x.UserId,
                         principalTable: "UserEntities",
-                        principalColumn: "Id",
+                        principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FileEntities_FileUUID",
-                table: "FileEntities",
-                column: "FileUUID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FileEntities_UserId",

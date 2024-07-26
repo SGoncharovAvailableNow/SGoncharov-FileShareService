@@ -5,9 +5,9 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
 {
     public class UserRepository : IUserRepository
     {
-        private FileSharingContext.FileSharingContext _context;
+        private FileSharingContext.FileShareContext _context;
 
-        public UserRepository(FileSharingContext.FileSharingContext context)
+        public UserRepository(FileSharingContext.FileShareContext context)
         {
             _context = context;
         }
@@ -19,7 +19,7 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
                 try
                 {
                     var emailCheck = await _context.UserEntities
-                        .FirstAsync(entity => entity.Email == userEntity.Email);
+                        .FirstOrDefaultAsync(entity => entity.Email == userEntity.Email);
                     if (emailCheck != null)
                     {
                         return false;
@@ -46,18 +46,18 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
                 {
                     if (userCheckEmail is not null)
                     {
-                        if (userCheckEmail.Id != id)
+                        if (userCheckEmail.UserId != id)
                         {
                             return false;
                         }
                         else
                         {
-                            await _context.UserEntities.Where(entity => entity.Id == id)
+                            await _context.UserEntities.Where(entity => entity.UserId == id)
                              .ExecuteUpdateAsync(entity => entity
                              .SetProperty(property => property.Name, name));
                         }
                     }
-                    await _context.UserEntities.Where(entity => entity.Id == id)
+                    await _context.UserEntities.Where(entity => entity.UserId == id)
                         .ExecuteUpdateAsync(entity => entity
                         .SetProperty(property => property.Email, email)
                         .SetProperty(property => property.Name, name));
@@ -74,7 +74,7 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
 
         public async Task<UserEntity?> GetUserByIdAsync(Guid id)
         {
-            var user = await _context.UserEntities.FirstAsync(entity => entity.Id == id);
+            var user = await _context.UserEntities.FirstAsync(entity => entity.UserId == id);
             return user;
         }
 
