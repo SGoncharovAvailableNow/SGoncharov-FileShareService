@@ -7,13 +7,13 @@ namespace SGoncharovFileSharingService;
 public class AutoDeletingService : BackgroundService, IDisposable
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly IFileRepository _fileRepository;
+    private readonly IServiceScopeFactory  _serviceScopeFactory;
     private Timer? _timer = null;
 
-    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IFileRepository fileRepository)
+    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory)
     {
         _webHostEnvironment = webHostEnvironment;
-        _fileRepository = fileRepository;
+        _serviceScopeFactory = scopeFactory;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,19 +24,23 @@ public class AutoDeletingService : BackgroundService, IDisposable
 
     public async void DeleteSharingFiles(object? state)
     {
-        var sharedFilesDirectory = Directory.EnumerateFiles(_webHostEnvironment.WebRootPath);
-        foreach (var sharedFile in sharedFilesDirectory)
+        using (var scopedRepository = _serviceScopeFactory.CreateScope())
         {
-            if ((File.GetCreationTimeUtc(sharedFile).AddDays(1)) < DateTime.UtcNow)
+            var fileRepository = scopedRepository.ServiceProvider.GetRequiredService<IFileRepository>();
+            var sharedFilesDirectory = Directory.EnumerateFiles(_webHostEnvironment.WebRootPath);
+            foreach (var sharedFile in sharedFilesDirectory)
             {
-                try
+                if ((File.GetCreationTimeUtc(sharedFile).AddDays(1)) < DateTime.UtcNow)
                 {
-                    File.Delete(sharedFile);
-                    await _fileRepository.DeleteFileInfoByPathAsync(sharedFile);
-                }
-                catch (System.Exception ex)
-                {
-                    System.Console.WriteLine(ex.Message);
+                    try
+                    {
+                        File.Delete(sharedFile);
+                        await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Console.WriteLine(ex.Message);
+                    }
                 }
             }
         }

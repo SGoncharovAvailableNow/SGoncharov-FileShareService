@@ -13,6 +13,7 @@ using SGoncharovFileSharingService.Services.UserServices;
 using System.Text;
 Env.Load(".env");
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHostedService<AutoDeletingService>();
 builder.Services.AddDbContext<FileShareContext>(
     context =>
     {
@@ -20,7 +21,6 @@ builder.Services.AddDbContext<FileShareContext>(
     }
 );
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
-builder.Services.AddHostedService<AutoDeletingService>();
 builder.Services.AddScoped<IJwtTokenProvider,JwtTokenProvider>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

@@ -103,6 +103,7 @@ StyleCopReport.xml
 *.svclog
 *.scc
 *.jpeg
+*.yaml
 
 # Chutzpah Test files
 _Chutzpah*
@@ -384,6 +385,7 @@ FodyWeavers.xsd
 
 # VS Code files for those working on multiple tools
 **/.vscode
+**/.config
 *.code-workspace
 
 # Local History for Visual Studio Code

@@ -81,7 +81,7 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
         public async Task<UserEntity?> GetUserByEmailAsync(string email)
         {
             var user = await _context.UserEntities
-                        .FirstAsync(entity => entity.Email == email);
+                        .FirstOrDefaultAsync(entity => entity.Email == email);
             return user;
         }
     }
