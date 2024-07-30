@@ -27,16 +27,12 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFileAsync([FromForm,Required] IFormFile file,
-         [FromQuery(Name = "deletePassword"),Required] string deletePassword) 
+        public async Task<IActionResult> UploadFileAsync([FromForm][Required] IFormFile file,
+        [FromQuery] [Required] string deletePassword)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest("Incorrect Data!");
-            }
 
             var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
-            
+
             return servicesResult.StatusCode switch
             {
                 500 => BadRequest(servicesResult.ErrorDetails),
@@ -46,16 +42,12 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpDelete("{uuid:string}")]
-        public async Task<IActionResult> DeleteFileAsync([Required] string uuid, 
-        [FromQuery(Name = "deletePassword"),Required]string deletePassword) 
+        public async Task<IActionResult> DeleteFileAsync([Required] [FromRoute] string uuid,
+        [FromQuery] [Required] string deletePassword)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Incorrect Data!");
-            }
 
             var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
-            
+
             return servicesResult.StatusCode switch
             {
                 403 => Forbid(servicesResult.ErrorDetails),
@@ -66,19 +58,15 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpGet("{uuid:string}")]
-        public async Task<IActionResult> GetFileAsync([Required]string uuid) 
+        public async Task<IActionResult> GetFileAsync([Required] [FromRoute] string uuid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Incorrect Data!");
-            }
-
+            
             var servicesResult = await _fileServices.GetFileAsync(uuid);
-           
-            return servicesResult.StatusCode switch 
+
+            return servicesResult.StatusCode switch
             {
                 400 => BadRequest(servicesResult.ErrorDetails),
-                200 => await Task.FromResult(PhysicalFile(servicesResult.Data,"file/file")),
+                200 => await Task.FromResult(PhysicalFile(servicesResult.Data, "file/file")),
                 _ => StatusCode(418)
             };
         }
