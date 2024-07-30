@@ -7,22 +7,20 @@ using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.UserController
 {
-    [ApiController,Route("/user"),Authorize]
+    [ApiController,Route("/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
+
         public UserController(IUserServices userServices)
         {
             _userServices = userServices;
         }
 
-        [HttpPost("register"),AllowAnonymous]
-        public async Task<IActionResult> AddUserAsync([FromBody, Required] RegisterUserDto userDto)
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegisterUserAsync([FromBody, Required] RegisterUserDto userDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid ModelState!");
-            }
             var servicesResponse = await _userServices.AddUserAsync(userDto);
 
             return servicesResponse.StatusCode switch
@@ -34,13 +32,10 @@ namespace SGoncharovFileSharingService.Controllers.UserController
                 
         }
 
-        [HttpPost("login"),AllowAnonymous]
+        [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> LoginUserAsync([FromBody, Required] AuthUserDto authUserDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid ModelState!");
-            }
             var servicesResponse = await _userServices.LoginUserAsync(authUserDto);
 
             return servicesResponse.StatusCode switch 
@@ -53,14 +48,11 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Incorrect Data!");
-            }
             var responseUpdate = await _userServices.UpdateUserAsync(userDto, User.Claims
-                .First(x => x.Type == ClaimTypes.NameIdentifier).Value);
+                .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
 
             return responseUpdate.StatusCode switch
             {
