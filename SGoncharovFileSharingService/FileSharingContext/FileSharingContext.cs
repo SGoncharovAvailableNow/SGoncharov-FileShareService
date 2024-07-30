@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NanoidDotNet;
 using SGoncharovFileSharingService.Models.Entities.FileEntities;
 using SGoncharovFileSharingService.Models.Entities.UserEntities;
 
@@ -12,6 +13,11 @@ namespace SGoncharovFileSharingService.FileSharingContext
         public FileShareContext(DbContextOptions<FileShareContext> options) : base(options) 
         {
             Database.EnsureCreated();
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<FilesInfo>().Property(p => p.Uuid).HasValueGenerator(typeof(Nanoid));
         }
     }
 }
