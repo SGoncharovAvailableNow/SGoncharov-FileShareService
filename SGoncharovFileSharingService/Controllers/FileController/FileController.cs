@@ -13,10 +13,12 @@ namespace SGoncharovFileSharingService.Controllers.FileController
     public class FileController : ControllerBase
     {
         private readonly IFileServices _fileServices;
+
         public FileController(IFileServices fileServices)
         {
             _fileServices = fileServices;
         }
+        
         private string GetUserId() => User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
         
         [HttpPost]
