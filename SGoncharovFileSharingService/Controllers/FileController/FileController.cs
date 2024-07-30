@@ -7,7 +7,9 @@ using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.FileController
 {
-    [ApiController, Route("/file"),Authorize]
+    [ApiController]
+    [Route("/files")]
+    [Authorize]
     public class FileController : ControllerBase
     {
         private readonly IFileServices _fileServices;
@@ -17,7 +19,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
         private string GetUserId() => User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
         
-        [HttpPost("upload")]
+        [HttpPost]
         public async Task<IActionResult> UploadFileAsync([FromForm,Required] IFormFile file,
          [FromQuery(Name = "deletePassword"),Required] string deletePassword) 
         {
@@ -36,8 +38,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
             };
         }
 
-        [HttpDelete("deletefile")]
-        public async Task<IActionResult> DeleteFileAsync([FromQuery(Name = "uuid"),Required] string uuid, 
+        [HttpDelete("{uuid:string}")]
+        public async Task<IActionResult> DeleteFileAsync([Required] string uuid, 
         [FromQuery(Name = "deletePassword"),Required]string deletePassword) 
         {
             if (!ModelState.IsValid)
@@ -56,8 +58,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
             };
         }
 
-        [HttpGet("getfile")]
-        public async Task<IActionResult> GetFileAsync([FromQuery(Name = "uuid"),Required]string uuid) 
+        [HttpGet("{uuid:string}")]
+        public async Task<IActionResult> GetFileAsync([Required]string uuid) 
         {
             if (!ModelState.IsValid)
             {
