@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Services.FileServices;
 using System;
 using System.ComponentModel.DataAnnotations;
@@ -27,47 +28,58 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFileAsync([FromForm][Required] IFormFile file,
-        [FromQuery] [Required] string deletePassword)
+        public async Task<ActionResult<ApiResponse<string>>> UploadFileAsync([FromForm][Required] IFormFile file,
+        [FromQuery][Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
-
-            return servicesResult.StatusCode switch
+            if (string.IsNullOrWhiteSpace(servicesResult) || string.IsNullOrEmpty(servicesResult))
             {
-                500 => BadRequest(servicesResult.ErrorDetails),
-                201 => Created(),
-                _ => StatusCode(418)
+                return new ApiResponse<string>
+                {
+                    Data = servicesResult,
+                    ErrorDetails = string.Empty,
+                    StatusCode = 500
+                };
+            }
+            return new ApiResponse<string>
+            {
+                Data = servicesResult,
+                ErrorDetails = string.Empty,
+                StatusCode = 201
             };
         }
 
-        [HttpDelete("{uuid:string}")]
-        public async Task<IActionResult> DeleteFileAsync([Required] [FromRoute] string uuid,
-        [FromQuery] [Required] string deletePassword)
+        [HttpDelete("{uuid}")]
+        public async Task<ActionResult<ApiResponse<string>>> DeleteFileAsync([Required][FromRoute] string uuid,
+        [FromQuery][Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
 
-            return servicesResult.StatusCode switch
+            return servicesResult switch
             {
-                403 => Forbid(servicesResult.ErrorDetails),
-                404 => BadRequest(servicesResult.ErrorDetails),
-                200 => Ok(servicesResult.Data),
-                _ => StatusCode(418)
+                "Invalid password!" => Forbid(servicesResult),
+                "Already Deleted" => BadRequest(servicesResult),
+                _ => new ApiResponse<string>
+                {
+                    Data = servicesResult,
+                    StatusCode = StatusCodes.Status200OK,
+                    ErrorDetails = string.Empty
+                }
             };
         }
 
-        [HttpGet("{uuid:string}")]
-        public async Task<IActionResult> GetFileAsync([Required] [FromRoute] string uuid)
+        [HttpGet("{uuid}")]
+        public async Task<ActionResult<string>> GetFileAsync([Required][FromRoute] string uuid)
         {
-            
+
             var servicesResult = await _fileServices.GetFileAsync(uuid);
 
-            return servicesResult.StatusCode switch
+            return servicesResult switch
             {
-                400 => BadRequest(servicesResult.ErrorDetails),
-                200 => await Task.FromResult(PhysicalFile(servicesResult.Data, "file/file")),
-                _ => StatusCode(418)
+                "File not exists!" => NotFound(servicesResult),
+                _ => File(new FileStream(servicesResult,FileMode.Open),"file/file")
             };
         }
     }

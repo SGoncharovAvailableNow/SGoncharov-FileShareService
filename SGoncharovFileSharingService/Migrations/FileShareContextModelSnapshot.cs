@@ -42,7 +42,7 @@ namespace SGoncharovFileSharingService.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("FileEntities");
+                    b.ToTable("FileEntities", (string)null);
                 });
 
             modelBuilder.Entity("SGoncharovFileSharingService.Models.Entities.UserEntities.UserEntity", b =>
@@ -65,7 +65,7 @@ namespace SGoncharovFileSharingService.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserEntities");
+                    b.ToTable("UserEntities", (string)null);
                 });
 
             modelBuilder.Entity("SGoncharovFileSharingService.Models.Entities.FileEntities.FileEntity", b =>
