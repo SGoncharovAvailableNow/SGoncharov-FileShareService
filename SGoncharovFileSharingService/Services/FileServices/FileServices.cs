@@ -19,7 +19,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<ApiResponse<string>> UploadFileAsync(IFormFile formFile, string deletePassword, string userId)
+        public async Task<ApiResponse<string>> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
         {
             var fileEntity = new FileEntity();
             fileEntity.FilePath = Path.Combine(_webHostEnvironment.WebRootPath, $"{fileEntity.Uuid}_{formFile.FileName}");
@@ -39,10 +39,8 @@ namespace SGoncharovFileSharingService.Services.FileServices
                     ErrorDetails = ex.Message
                 };
             }
-            Guid userGuid;
-            Guid.TryParse(userId, out userGuid);
             fileEntity.DeletePassword = Argon2.Hash(deletePassword);
-            fileEntity.UserId = userGuid;
+            fileEntity.UserId = userId;
             await _fileRepository.CreateFileInfo(fileEntity);
             return new ApiResponse<string>
             {

@@ -18,9 +18,14 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         {
             _fileServices = fileServices;
         }
-        
-        private string GetUserId() => User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-        
+
+        private Guid GetUserId()
+        {
+            Guid guidFromClaim;
+            Guid.TryParse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value, out guidFromClaim);
+            return guidFromClaim;
+        }
+
         [HttpPost]
         public async Task<IActionResult> UploadFileAsync([FromForm,Required] IFormFile file,
          [FromQuery(Name = "deletePassword"),Required] string deletePassword) 
