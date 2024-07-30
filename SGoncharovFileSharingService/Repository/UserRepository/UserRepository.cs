@@ -12,19 +12,19 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
             _context = context;
         }
 
-        public async Task<bool> AddUserAsync(UserEntity userEntity)
+        public async Task<bool> AddUserAsync(User userEntity)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var emailCheck = await _context.UserEntities
+                    var emailCheck = await _context.Users
                         .FirstOrDefaultAsync(entity => entity.Email == userEntity.Email);
                     if (emailCheck != null)
                     {
                         return false;
                     }
-                    await _context.UserEntities.AddAsync(userEntity);
+                    await _context.Users.AddAsync(userEntity);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }
@@ -52,12 +52,12 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
                         }
                         else
                         {
-                            await _context.UserEntities.Where(entity => entity.UserId == id)
+                            await _context.Users.Where(entity => entity.UserId == id)
                              .ExecuteUpdateAsync(entity => entity
                              .SetProperty(property => property.Name, name));
                         }
                     }
-                    await _context.UserEntities.Where(entity => entity.UserId == id)
+                    await _context.Users.Where(entity => entity.UserId == id)
                         .ExecuteUpdateAsync(entity => entity
                         .SetProperty(property => property.Email, email)
                         .SetProperty(property => property.Name, name));
@@ -72,15 +72,15 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
             return true;
         }
 
-        public async Task<UserEntity?> GetUserByIdAsync(Guid id)
+        public async Task<User?> GetUserByIdAsync(Guid id)
         {
-            var user = await _context.UserEntities.FirstAsync(entity => entity.UserId == id);
+            var user = await _context.Users.FirstAsync(entity => entity.UserId == id);
             return user;
         }
 
-        public async Task<UserEntity?> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email)
         {
-            var user = await _context.UserEntities
+            var user = await _context.Users
                         .FirstOrDefaultAsync(entity => entity.Email == email);
             return user;
         }

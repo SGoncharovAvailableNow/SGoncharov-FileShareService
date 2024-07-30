@@ -13,28 +13,28 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
             _context = context;
         }
 
-        public async Task CreateFileInfo(FileEntity fileEntity)
+        public async Task CreateFileInfo(Models.Entities.FileEntities.FilesInfo fileEntity)
         {
-            await _context.FileEntities.AddAsync(fileEntity);
+            await _context.Files.AddAsync(fileEntity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<FileEntity> GetFileInfoAsync(string uuid)
+        public async Task<Models.Entities.FileEntities.FilesInfo> GetFileInfoAsync(string uuid)
         {
-            return await _context.FileEntities?
+            return await _context.Files?
                 .FirstOrDefaultAsync(file => file.Uuid == uuid);
         }
 
         public async Task DeleteFileInfoAsync(string uuid)
         {
-            await _context.FileEntities
+            await _context.Files
                 .Where(file => file.Uuid == uuid )
                 .ExecuteDeleteAsync();
         }
 
         public async Task DeleteFileInfoByPathAsync(string path)
         {
-            await _context.FileEntities
+            await _context.Files
             .Where(file => file.FilePath == path)
             .ExecuteDeleteAsync();    
         }

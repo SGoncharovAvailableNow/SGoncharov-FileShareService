@@ -22,7 +22,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
         public async Task<string> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
         {
-            var fileEntity = new FileEntity();
+            var fileEntity = new Models.Entities.FileEntities.FilesInfo();
             fileEntity.FilePath = $"{fileEntity.Uuid}_{formFile.FileName}" ;
 
             using (var fileStream = new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath), FileMode.Create))

@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGoncharovFileSharingService.Models.Entities.FileEntities
 {
-    public class FileEntity
+    public class FilesInfo
     {
         [Key]
         public string Uuid { get; set; } = Nanoid.Generate();
@@ -14,7 +14,7 @@ namespace SGoncharovFileSharingService.Models.Entities.FileEntities
         public Guid UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public UserEntity? UserEntity { get; set; }
+        public User? UserEntity { get; set; }
 
     }
 }

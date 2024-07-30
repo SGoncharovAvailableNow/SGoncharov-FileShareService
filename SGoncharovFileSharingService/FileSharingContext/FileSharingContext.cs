@@ -6,8 +6,8 @@ namespace SGoncharovFileSharingService.FileSharingContext
 {
     public class FileShareContext : DbContext
     {
-        public DbSet<UserEntity> UserEntities { get; set; }
-        public DbSet<FileEntity> FileEntities { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<FilesInfo> Files { get; set; }
 
         public FileShareContext(DbContextOptions<FileShareContext> options) : base(options) 
         {

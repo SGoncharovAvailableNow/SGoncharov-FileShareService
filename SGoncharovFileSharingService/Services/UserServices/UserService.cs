@@ -23,8 +23,8 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
         public async Task<ApiResponse<LoginUserDto>> AddUserAsync(RegisterUserDto regUserDto) 
         {
-            var passwordHasher = new PasswordHasher<UserEntity>();
-            UserEntity userEntity = _mapper.Map<UserEntity>(regUserDto);
+            var passwordHasher = new PasswordHasher<User>();
+            User userEntity = _mapper.Map<User>(regUserDto);
             userEntity.Password = passwordHasher.HashPassword(userEntity, userEntity.Password); 
             var repositoryResult =  await _userRepository.AddUserAsync(userEntity);
             if(repositoryResult == false) 
@@ -50,7 +50,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
         public async Task<ApiResponse<LoginUserDto>> LoginUserAsync(AuthUserDto authUserDto)
         {
-            var passHash = new PasswordHasher<UserEntity>();
+            var passHash = new PasswordHasher<User>();
             var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email);
             if (user is null)
             {

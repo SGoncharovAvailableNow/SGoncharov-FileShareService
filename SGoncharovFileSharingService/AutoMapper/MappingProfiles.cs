@@ -7,8 +7,8 @@ namespace SGoncharovFileSharingService.AutoMapper
     {
         public MappingProfiles() 
         {
-            CreateMap<UserEntity,LoginUserDto>().ReverseMap();
-            CreateMap<UserEntity, RegisterUserDto>().ReverseMap();
+            CreateMap<User,LoginUserDto>().ReverseMap();
+            CreateMap<User, RegisterUserDto>().ReverseMap();
         }
     }
 }
