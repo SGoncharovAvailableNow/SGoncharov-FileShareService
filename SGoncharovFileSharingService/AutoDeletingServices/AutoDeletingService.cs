@@ -36,17 +36,14 @@ public class AutoDeletingService : BackgroundService, IDisposable
             var sharedFilesDirectory = Directory.EnumerateFiles(_webHostEnvironment.WebRootPath);
             foreach (var sharedFile in sharedFilesDirectory)
             {
-                if ((File.GetCreationTimeUtc(sharedFile).AddSeconds(10)) < DateTime.UtcNow)
+                if (!(File.GetCreationTimeUtc(sharedFile).AddDays(1) < DateTime.UtcNow))
                 {
-                    try
-                    {
-                        File.Delete(sharedFile);
-                        await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        System.Console.WriteLine(ex.Message);
-                    }
+                    continue;
+                }
+                else
+                {
+                    File.Delete(sharedFile);
+                    await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
                 }
             }
         }
