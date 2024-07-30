@@ -12,69 +12,24 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
             _context = context;
         }
 
-        public async Task<bool> AddUserAsync(User userEntity)
+        public async Task AddUserAsync(User userEntity)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-                    var emailCheck = await _context.Users
-                        .FirstOrDefaultAsync(entity => entity.Email == userEntity.Email);
-                    if (emailCheck != null)
-                    {
-                        return false;
-                    }
-                    await _context.Users.AddAsync(userEntity);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
-            return true;
+            await _context.Users.AddAsync(userEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateUserAsync(string name, string email, Guid id)
+        public async Task UpdateUserAsync(string name, string email, Guid id)
         {
-            using (var transaction = await _context.Database.BeginTransactionAsync())
-            {
-                var userCheckEmail = await GetUserByEmailAsync(email);
-                try
-                {
-                    if (userCheckEmail is not null)
-                    {
-                        if (userCheckEmail.UserId != id)
-                        {
-                            return false;
-                        }
-                        else
-                        {
-                            await _context.Users.Where(entity => entity.UserId == id)
-                             .ExecuteUpdateAsync(entity => entity
-                             .SetProperty(property => property.Name, name));
-                        }
-                    }
-                    await _context.Users.Where(entity => entity.UserId == id)
-                        .ExecuteUpdateAsync(entity => entity
-                        .SetProperty(property => property.Email, email)
-                        .SetProperty(property => property.Name, name));
-                    await transaction.CommitAsync();
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    throw;
-                }
-            }
-            return true;
+            await _context.Users.Where(entity => entity.UserId == id)
+                .ExecuteUpdateAsync(entity => entity
+                .SetProperty(property => property.Email, email)
+                .SetProperty(property => property.Name, name));
         }
 
         public async Task<User?> GetUserByIdAsync(Guid id)
         {
             var user = await _context.Users.FirstAsync(entity => entity.UserId == id);
+
             return user;
         }
 
@@ -82,6 +37,7 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
         {
             var user = await _context.Users
                         .FirstOrDefaultAsync(entity => entity.Email == email);
+
             return user;
         }
     }

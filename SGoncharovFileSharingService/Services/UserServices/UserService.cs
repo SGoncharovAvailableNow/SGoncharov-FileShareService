@@ -26,17 +26,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
             var passwordHasher = new PasswordHasher<User>();
             User userEntity = _mapper.Map<User>(regUserDto);
             userEntity.Password = passwordHasher.HashPassword(userEntity, userEntity.Password); 
-            var repositoryResult =  await _userRepository.AddUserAsync(userEntity);
-            if(repositoryResult == false) 
-            {
-                return new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = $"User with {regUserDto.Email} already exists!",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
-
+            await _userRepository.AddUserAsync(userEntity);
             var loginUserDto = _mapper.Map<LoginUserDto>(userEntity);
             loginUserDto.Token = _jwtTokenProvider.GetJwtToken(userEntity.UserId, userEntity.Name);
 
@@ -52,6 +42,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
         {
             var passHash = new PasswordHasher<User>();
             var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email);
+
             if (user is null)
             {
                 return new ApiResponse<LoginUserDto>
@@ -73,6 +64,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
                     StatusCode = StatusCodes.Status401Unauthorized
                 };
             }
+            
             var loginUserDto = _mapper.Map<LoginUserDto>(user);
             loginUserDto.Token = _jwtTokenProvider.GetJwtToken(user.UserId, user.Name);
 
@@ -88,17 +80,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
         {
             Guid guid;
             Guid.TryParse(id, out guid);
-            var repositoryResponse = await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, guid);
-
-            if(repositoryResponse == false)
-            {
-                return new ApiResponse<string?>
-                {
-                    Data = string.Empty,
-                    ErrorDetails = $"User with {userDto.Email} exists!",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
+            await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, guid);
 
             return new ApiResponse<string?>
             {
