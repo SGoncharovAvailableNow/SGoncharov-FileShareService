@@ -24,10 +24,15 @@ namespace SGoncharovFileSharingService.Services.UserServices
         public async Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto) 
         {
             var passwordHasher = new PasswordHasher<User>();
+
             User userEntity = _mapper.Map<User>(regUserDto);
+
             userEntity.Password = passwordHasher.HashPassword(userEntity, userEntity.Password); 
+
             await _userRepository.AddUserAsync(userEntity);
+
             var loginUserDto = _mapper.Map<LoginUserDto>(userEntity);
+            
             loginUserDto.Token = _jwtTokenProvider.GetJwtToken(userEntity.UserId, userEntity.Name);
 
             return loginUserDto;

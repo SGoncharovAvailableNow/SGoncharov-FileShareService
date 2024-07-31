@@ -7,6 +7,7 @@ namespace SGoncharovFileSharingService;
 public class AutoDeletingService : BackgroundService, IDisposable
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
+
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory)
@@ -25,6 +26,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
                 DeleteSharingFiles(stoppingToken);
             }
         });
+
         return Task.CompletedTask;
     }
 
@@ -34,6 +36,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
         {
             var fileRepository = scopedRepository.ServiceProvider.GetRequiredService<IFileRepository>();
             var sharedFilesDirectory = Directory.EnumerateFiles(_webHostEnvironment.WebRootPath);
+
             foreach (var sharedFile in sharedFilesDirectory)
             {
                 if (!(File.GetCreationTimeUtc(sharedFile).AddDays(1) < DateTime.UtcNow))
