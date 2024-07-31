@@ -1,65 +1,115 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SGoncharovFileSharingService.JwtTokenProvider;
 using SGoncharovFileSharingService.Models.DTO;
+using SGoncharovFileSharingService.Models.Entities.UserEntities;
+using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Services.UserServices;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.UserController
 {
-    [ApiController,Route("/users")]
+    [ApiController, Route("/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
 
-        public UserController(IUserServices userServices)
+        private readonly IMapper _mapper;
+
+        private readonly IJwtTokenProvider _jwtTokenProvider;
+
+        public UserController(IUserServices userServices, IMapper mapper, IJwtTokenProvider jwtTokenProvider)
         {
             _userServices = userServices;
+            _mapper = mapper;
+            _jwtTokenProvider = jwtTokenProvider;
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> RegisterUserAsync([FromBody, Required] RegisterUserDto userDto)
+        public async Task<ActionResult<ApiResponse<LoginUserDto>>> RegisterUserAsync([FromBody, Required] RegisterUserDto userDto)
         {
-            var servicesResponse = await _userServices.AddUserAsync(userDto);
+            var servicesResponse = await _userServices.RegisterUserAsync(userDto);
 
-            return servicesResponse.StatusCode switch
+            return servicesResponse switch
             {
-                StatusCodes.Status400BadRequest => BadRequest(servicesResponse.ErrorDetails),
-                StatusCodes.Status200OK => Ok(servicesResponse.Data),
-                _ => StatusCode(418)
+                null => new ApiResponse<LoginUserDto>
+                {
+                    Data = null,
+                    ErrorDetails = "Email already exist!",
+                    StatusCode = 400
+                },
+                _=> new ApiResponse<LoginUserDto>
+                {
+                    Data = servicesResponse,
+                    ErrorDetails = "",
+                    StatusCode = 200
+                }
             };
-                
+
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> LoginUserAsync([FromBody, Required] AuthUserDto authUserDto)
+        public async Task<ActionResult<ApiResponse<LoginUserDto>>> LoginUserAsync([FromBody, Required] AuthUserDto authUserDto)
         {
             var servicesResponse = await _userServices.LoginUserAsync(authUserDto);
+            var passHash = new PasswordHasher<User>();
 
-            return servicesResponse.StatusCode switch 
+            if (servicesResponse is null)
             {
-                StatusCodes.Status400BadRequest => BadRequest(servicesResponse.ErrorDetails),
-                StatusCodes.Status200OK => Ok(servicesResponse?.Data),
-                StatusCodes.Status401Unauthorized => Unauthorized(servicesResponse?.ErrorDetails),
-                _ => StatusCode(418)
+                return new ApiResponse<LoginUserDto>
+                {
+                    Data = null,
+                    ErrorDetails = $"User with {authUserDto.Email} not exists!",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+            }
+
+            var verifyResult = passHash
+            .VerifyHashedPassword(servicesResponse, servicesResponse.Password, authUserDto.Password);
+
+            if (verifyResult == PasswordVerificationResult.Failed)
+            {
+                return new ApiResponse<LoginUserDto>
+                {
+                    Data = null,
+                    ErrorDetails = $"Invalid Password!",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            var loginUserDto = _mapper.Map<LoginUserDto>(servicesResponse);
+            loginUserDto.Token = _jwtTokenProvider
+            .GetJwtToken(servicesResponse.UserId, servicesResponse.Name);
+
+            return new ApiResponse<LoginUserDto>
+            {
+                Data = loginUserDto,
+                ErrorDetails = string.Empty,
+                StatusCode = StatusCodes.Status200OK
             };
+
         }
 
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto)
         {
-            var responseUpdate = await _userServices.UpdateUserAsync(userDto, User.Claims
-                .FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value);
+            await _userServices.UpdateUserAsync(userDto, GetGuidFromClaim());
 
-            return responseUpdate.StatusCode switch
-            {
-                StatusCodes.Status200OK => Ok(),
-                StatusCodes.Status400BadRequest => BadRequest(responseUpdate.ErrorDetails),
-                _ => StatusCode(418)
-            };
+            return Ok();
+        }
+
+        private Guid GetGuidFromClaim()
+        {
+            Guid guid;
+            Guid.TryParse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value,out guid);
+
+            return guid;
         }
     }
 }

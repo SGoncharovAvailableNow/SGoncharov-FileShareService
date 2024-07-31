@@ -26,13 +26,6 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
                 .SetProperty(property => property.Name, name));
         }
 
-        public async Task<User?> GetUserByIdAsync(Guid id)
-        {
-            var user = await _context.Users.FirstAsync(entity => entity.UserId == id);
-
-            return user;
-        }
-
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             var user = await _context.Users

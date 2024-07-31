@@ -8,8 +8,6 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
 
         Task<User?> GetUserByEmailAsync(string email);
 
-        Task<User?> GetUserByIdAsync(Guid id);
-
         Task UpdateUserAsync(string name, string email, Guid id);
     }
 }

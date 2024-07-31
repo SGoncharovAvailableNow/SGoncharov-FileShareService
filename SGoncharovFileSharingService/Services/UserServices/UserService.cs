@@ -21,7 +21,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<LoginUserDto>> AddUserAsync(RegisterUserDto regUserDto) 
+        public async Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto) 
         {
             var passwordHasher = new PasswordHasher<User>();
             User userEntity = _mapper.Map<User>(regUserDto);
@@ -30,64 +30,20 @@ namespace SGoncharovFileSharingService.Services.UserServices
             var loginUserDto = _mapper.Map<LoginUserDto>(userEntity);
             loginUserDto.Token = _jwtTokenProvider.GetJwtToken(userEntity.UserId, userEntity.Name);
 
-            return new ApiResponse<LoginUserDto>
-            {
-                Data = loginUserDto,
-                ErrorDetails = string.Empty,
-                StatusCode = StatusCodes.Status200OK
-            };
+            return loginUserDto;
         }
 
-        public async Task<ApiResponse<LoginUserDto>> LoginUserAsync(AuthUserDto authUserDto)
+        public async Task<User> LoginUserAsync(AuthUserDto authUserDto)
         {
-            var passHash = new PasswordHasher<User>();
-            var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email);
+            return await _userRepository.GetUserByEmailAsync(authUserDto.Email);
+        }
 
-            if (user is null)
-            {
-                return new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = $"User with {authUserDto.Email} not exists!",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
-
-            var verifyResult = passHash.VerifyHashedPassword(user,user.Password,authUserDto.Password);
-
-            if (verifyResult == PasswordVerificationResult.Failed)
-            {
-                return new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = $"Invalid Password!",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                };
-            }
+        public async Task UpdateUserAsync(UserDto userDto, Guid id)
+        {
             
-            var loginUserDto = _mapper.Map<LoginUserDto>(user);
-            loginUserDto.Token = _jwtTokenProvider.GetJwtToken(user.UserId, user.Name);
+            await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, id);
 
-            return new ApiResponse<LoginUserDto>
-            {
-                Data = loginUserDto,
-                ErrorDetails = string.Empty,
-                StatusCode = StatusCodes.Status200OK
-            };
         }
 
-        public async Task<ApiResponse<string?>> UpdateUserAsync(UserDto userDto, string id)
-        {
-            Guid guid;
-            Guid.TryParse(id, out guid);
-            await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, guid);
-
-            return new ApiResponse<string?>
-            {
-                Data = string.Empty,
-                ErrorDetails = string.Empty,
-                StatusCode = StatusCodes.Status200OK
-            };
-        }
     }
 }
