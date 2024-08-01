@@ -22,8 +22,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
 
         private Guid GetUserId()
         {
-            Guid guidFromClaim;
-            Guid.TryParse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value, out guidFromClaim);
+            Guid.TryParse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value, out Guid guidFromClaim);
             return guidFromClaim;
         }
 
