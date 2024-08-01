@@ -10,22 +10,29 @@ public class AutoDeletingService : BackgroundService, IDisposable
 
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory)
+    private readonly ILogger _logger;
+
+    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory,ILogger logger)
     {
         _webHostEnvironment = webHostEnvironment;
         _serviceScopeFactory = scopeFactory;
+        _logger = logger;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Task.Run(async () =>
+        try
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
                 DeleteSharingFiles(stoppingToken);
+                Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             }
-        });
+        }
+        catch (System.Exception ex)
+        {
+            _logger.LogInformation(ex.Message);
+        }
 
         return Task.CompletedTask;
     }
@@ -39,15 +46,12 @@ public class AutoDeletingService : BackgroundService, IDisposable
 
             foreach (var sharedFile in sharedFilesDirectory)
             {
-                if (!(File.GetCreationTimeUtc(sharedFile).AddDays(1) < DateTime.UtcNow))
+                if (File.GetCreationTimeUtc(sharedFile).AddDays(1) > DateTime.UtcNow)
                 {
                     continue;
                 }
-                else
-                {
-                    File.Delete(sharedFile);
-                    await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
-                }
+                File.Delete(sharedFile);
+                await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
             }
         }
     }
