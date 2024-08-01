@@ -32,15 +32,12 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         {
 
             var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
+            
             if (string.IsNullOrWhiteSpace(servicesResult) || string.IsNullOrEmpty(servicesResult))
             {
-                return new ApiResponse<string>
-                {
-                    Data = servicesResult,
-                    ErrorDetails = string.Empty,
-                    StatusCode = 500
-                };
+                throw new NullReferenceException();
             }
+
             return new ApiResponse<string>
             {
                 Data = servicesResult,

@@ -61,6 +61,7 @@ else
     app.UseHsts();
 }
 
+app.UseExceptionHandlerMiddleware();
 app.UseStaticFiles();
 app.UseAuthorization();
 app.UseHttpsRedirection();
