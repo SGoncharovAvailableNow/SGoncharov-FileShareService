@@ -28,8 +28,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<string>>> UploadFileAsync([FromForm][Required] IFormFile file,
-        [FromQuery][Required] string deletePassword)
+        public async Task<ActionResult<ApiResponse<string>>> UploadFileAsync([FromForm, Required] IFormFile file,
+        [FromQuery, Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
@@ -51,8 +51,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpDelete("{uuid}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteFileAsync([Required][FromRoute] string uuid,
-        [FromQuery][Required] string deletePassword)
+        public async Task<ActionResult<ApiResponse<string>>> DeleteFileAsync([Required, FromRoute] string uuid,
+        [FromQuery, Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
@@ -71,7 +71,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<string>> GetFileAsync([Required][FromRoute] string uuid)
+        public async Task<ActionResult<string>> GetFileAsync([Required, FromRoute] string uuid)
         {
 
             var servicesResult = await _fileServices.GetFileAsync(uuid);
