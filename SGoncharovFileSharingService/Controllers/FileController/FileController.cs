@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace SGoncharovFileSharingService.Controllers.FileController
 {
     [ApiController]
-    [Route("/files")]
+    [Route("api/v1/files")]
     [Authorize]
     public class FileController : ControllerBase
     {
