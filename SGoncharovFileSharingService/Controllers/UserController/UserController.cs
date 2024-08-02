@@ -31,14 +31,14 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         public async Task<ActionResult<ApiResponse<LoginUserDto>>> RegisterUserAsync(
             [FromBody, Required] RegisterUserDto userDto, CancellationToken cancellationToken)
         {
-            var servicesResponse = await _userServices.RegisterUserAsync(userDto, cancellationToken);
+            var logDto = await _userServices.RegisterUserAsync(userDto, cancellationToken);
 
-            return servicesResponse switch
+            return logDto switch
             {
                 null => throw new NullReferenceException(),
                 _ => new ApiResponse<LoginUserDto>
                 {
-                    Data = servicesResponse,
+                    Data = logDto,
                     ErrorDetails = "",
                     StatusCode = 200
                 }

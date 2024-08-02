@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SGoncharovFileSharingService.Models.DTO
+namespace SGoncharovFileSharingService.Models.ControllerDto
 {
-    public class LoginUserDto
+    public class UsersControllerLoginDto
     {
         [Length(3, 120, ErrorMessage = $"Invalid parameter length: {nameof(Name)}")]
         public string Name { get; set; }
