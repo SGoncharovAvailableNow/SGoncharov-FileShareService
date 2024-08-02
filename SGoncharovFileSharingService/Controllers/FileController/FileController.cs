@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SGoncharovFileSharingService.Models.ControllerResponseDto;
+using SGoncharovFileSharingService.Models.DTO;
 using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Services.FileServices;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using System.Threading;
 
 namespace SGoncharovFileSharingService.Controllers.FileController
 {
@@ -15,62 +19,57 @@ namespace SGoncharovFileSharingService.Controllers.FileController
     {
         private readonly IFileServices _fileServices;
 
-        public FileController(IFileServices fileServices)
+        private readonly IMapper _mapper;
+
+        public FileController(IFileServices fileServices, IMapper mapper)
         {
             _fileServices = fileServices;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<ResponseDto>>> UploadFileAsync([FromForm, Required] IFormFile file,
-        [FromQuery, Required] string deletePassword)
+        public async Task<ActionResult<ApiResponse<FileControllerResponseDto>>> UploadFileAsync([FromForm, Required] IFormFile file,
+        [FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
         {
 
-            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, 
-            ControllerExtension.GetUserId(this), cancellationToken:default);
+            var fileServiceResponseDto = await _fileServices.UploadFileAsync(file, deletePassword,
+            this.GetUserId(), cancellationToken);
 
-            if (string.IsNullOrWhiteSpace(servicesResult.ResponseData) || string.IsNullOrEmpty(servicesResult.ResponseData))
+            if (string.IsNullOrWhiteSpace(fileServiceResponseDto.ResponseData) || string.IsNullOrEmpty(fileServiceResponseDto.ResponseData))
             {
                 throw new NullReferenceException();
             }
 
-            return new ApiResponse<ResponseDto>
+            return new ApiResponse<FileControllerResponseDto>
             {
-                Data = servicesResult,
+                Data = _mapper.Map<FileControllerResponseDto>(fileServiceResponseDto),
                 ErrorDetails = string.Empty,
                 StatusCode = 201
             };
         }
 
-        [HttpDelete("{uuid}")]
-        public async Task<ActionResult<ApiResponse<ResponseDto>>> DeleteFileAsync([Required, FromRoute] string fileId,
-        [FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
+        [HttpDelete("{fileId}")]
+        public async Task<ActionResult<ApiResponse<FileControllerResponseDto>>> DeleteFileAsync(
+            [Required, FromRoute] string fileId,[FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
         {
-            var servicesResult = await _fileServices.DeleteFileAsync(fileId, deletePassword, cancellationToken);
+            var fileServiceResponseDto = await _fileServices.DeleteFileAsync(fileId, deletePassword, cancellationToken);
 
-            return servicesResult.ResponseData switch
+            return new ApiResponse<FileControllerResponseDto>
             {
-                "Invalid password!" => Forbid(servicesResult.ResponseData),
-                "Already Deleted" => BadRequest(servicesResult),
-                _ => new ApiResponse<ResponseDto>
-                {
-                    Data = servicesResult,
-                    StatusCode = StatusCodes.Status200OK,
-                    ErrorDetails = string.Empty
-                }
+                Data = _mapper.Map<FileControllerResponseDto>(fileServiceResponseDto),
+                StatusCode = StatusCodes.Status200OK,
+                ErrorDetails = string.Empty
             };
         }
 
-        [HttpGet("{uuid}")]
-        public async Task<ActionResult<ResponseDto>> GetFileAsync([Required, FromRoute] string fileId)
+        [HttpGet("{fileId}")]
+        public async Task<ActionResult<FileControllerResponseDto>> GetFileAsync([Required, FromRoute] string fileId, 
+            CancellationToken cancellationToken)
         {
 
-            var servicesResult = await _fileServices.GetFileAsync(fileId, cancellationToken:default);
+            var servicesResult = await _fileServices.GetFileAsync(fileId, cancellationToken);
 
-            return servicesResult.ResponseData switch
-            {
-                "File not exists!" => NotFound(servicesResult),
-                _ => File(new FileStream(servicesResult.ResponseData, FileMode.Open), "file/file")
-            };
+            return File(new FileStream(servicesResult.ResponseData, FileMode.Open), "file/file");
         }
     }
 

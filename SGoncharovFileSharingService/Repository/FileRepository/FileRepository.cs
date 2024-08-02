@@ -36,7 +36,7 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
         {
             await _context.Files
             .Where(file => file.FilePath == path)
-            .ExecuteDeleteAsync(cancellationToken);    
+            .ExecuteDeleteAsync(cancellationToken);
         }
     }
 }

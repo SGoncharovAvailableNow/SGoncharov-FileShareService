@@ -47,7 +47,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
             if (user == null)
             {
-                throw new NotFoundException($"User with {authUserDto.Email} not found!");
+                throw new NotFoundException($"User with email: {authUserDto.Email} not found in data base!");
             }
 
             var verifyResult = _passwordHasher
