@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SGoncharovFileSharingService.JwtTokenProvider;
+using SGoncharovFileSharingService.Models.ControllerDto;
 using SGoncharovFileSharingService.Models.DTO;
 using SGoncharovFileSharingService.Models.Entities.UserEntities;
 using SGoncharovFileSharingService.Models.ResponseDto;
@@ -20,15 +21,18 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         private readonly IJwtTokenProvider _jwtTokenProvider;
 
+        private readonly IMapper _mapper;
+
         public UserController(IUserServices userServices, IMapper mapper, IJwtTokenProvider jwtTokenProvider)
         {
             _userServices = userServices;
             _jwtTokenProvider = jwtTokenProvider;
+            _mapper = mapper;
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<LoginUserDto>>> RegisterUserAsync(
+        public async Task<ActionResult<ApiResponse<UsersControllerLoginDto>>> RegisterUserAsync(
             [FromBody, Required] RegisterUserDto userDto, CancellationToken cancellationToken)
         {
             var logDto = await _userServices.RegisterUserAsync(userDto, cancellationToken);
@@ -36,9 +40,9 @@ namespace SGoncharovFileSharingService.Controllers.UserController
             return logDto switch
             {
                 null => throw new NullReferenceException(),
-                _ => new ApiResponse<LoginUserDto>
+                _ => new ApiResponse<UsersControllerLoginDto>
                 {
-                    Data = logDto,
+                    Data = _mapper.Map<UsersControllerLoginDto>(logDto),
                     ErrorDetails = "",
                     StatusCode = 200
                 }
@@ -48,7 +52,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<LoginUserDto>>> LoginUserAsync(
+        public async Task<ActionResult<ApiResponse<UsersControllerLoginDto>>> LoginUserAsync(
             [FromBody, Required] AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
             var logDto = await _userServices.LoginUserAsync(authUserDto, cancellationToken);
@@ -58,9 +62,9 @@ namespace SGoncharovFileSharingService.Controllers.UserController
                 throw new NullReferenceException();
             }
 
-            return new ApiResponse<LoginUserDto>
+            return new ApiResponse<UsersControllerLoginDto>
             {
-                Data = logDto,
+                Data = _mapper.Map<UsersControllerLoginDto>(logDto),
                 ErrorDetails = string.Empty,
                 StatusCode = StatusCodes.Status200OK
             };

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.FileProviders;
+using NanoidDotNet;
 using SGoncharovFileSharingService.Models.Entities.FileEntities;
 using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Repository.FileRepository;
@@ -17,6 +18,8 @@ namespace SGoncharovFileSharingService.Services.FileServices
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         private readonly IPasswordHasher<FilesInfo> _passwordHasher;
+
+        private const int ID_SIZE = 10;
 
         public FileServices(IFileRepository fileRepository, IWebHostEnvironment webHostEnvironment, 
         IPasswordHasher<FilesInfo> passwordHasher)
@@ -40,6 +43,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
             fileEntity.DeletePassword = _passwordHasher.HashPassword(fileEntity, deletePassword);
             fileEntity.UserId = userId;
+            fileEntity.FileId = await Nanoid.GenerateAsync(size: ID_SIZE);
 
             await _fileRepository.CreateFileInfoAsync(fileEntity,cancellationToken);
 
