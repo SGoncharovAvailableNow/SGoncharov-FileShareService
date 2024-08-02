@@ -5,11 +5,11 @@ namespace SGoncharovFileSharingService.Services.FileServices
 {
     public interface IFileServices
     {
-        Task<string> GetFileAsync(string uuid);
+        Task<ResponseDto> GetFileAsync(string uuid);
 
-        Task<string> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId);
+        Task<ResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId);
 
-        Task<string> DeleteFileAsync(string uuid, string deletePass);
+        Task<ResponseDto> DeleteFileAsync(string uuid, string deletePass);
 
     }
 }

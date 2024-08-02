@@ -22,7 +22,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<string> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
+        public async Task<ResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
         {
             var passwordHasher = new PasswordHasher<FilesInfo>();
 
@@ -34,49 +34,67 @@ namespace SGoncharovFileSharingService.Services.FileServices
                 await formFile.CopyToAsync(fileStream);
             };
 
-            fileEntity.DeletePassword = passwordHasher.HashPassword(fileEntity,deletePassword);
+            fileEntity.DeletePassword = passwordHasher.HashPassword(fileEntity, deletePassword);
             fileEntity.UserId = userId;
 
             await _fileRepository.CreateFileInfo(fileEntity);
 
-            return fileEntity.Uuid;
+            return new ResponseDto
+            {
+                ResponseData = fileEntity.Uuid
+            };
         }
 
-        public async Task<string> GetFileAsync(string uuid)
+        public async Task<ResponseDto> GetFileAsync(string uuid)
         {
             var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
 
             if (fileEntity == null)
             {
-                return "File not exists!";
+                return new ResponseDto
+                {
+                    ResponseData = "File not exists!"
+                };
             }
 
-            return Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath);
+            return new ResponseDto
+            {
+                ResponseData = Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath)
+            };
         }
 
-        public async Task<string> DeleteFileAsync(string uuid, string deletePass)
+        public async Task<ResponseDto> DeleteFileAsync(string uuid, string deletePass)
         {
             var passwordHasher = new PasswordHasher<FilesInfo>();
 
             var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
 
             var verifyResult = passwordHasher.VerifyHashedPassword(fileEntity, fileEntity.DeletePassword, deletePass);
-            
+
             if (verifyResult == PasswordVerificationResult.Failed)
             {
-                return "Invalid password!";
+                return new ResponseDto
+                {
+                    ResponseData = "Invalid password!"
+                };
             }
 
             await _fileRepository.DeleteFileInfoAsync(uuid);
 
             if (!File.Exists(fileEntity.FilePath))
             {
-                return "Already Deleted";
+                return new ResponseDto
+                {
+                    ResponseData = "Already Deleted"
+                };
             }
 
             File.Delete(fileEntity.FilePath);
 
-            return "Deleted";
+            return new ResponseDto
+            {
+                ResponseData = "Deleted"
+            };
         }
     }
 }

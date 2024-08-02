@@ -27,18 +27,18 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<string>>> UploadFileAsync([FromForm, Required] IFormFile file,
+        public async Task<ActionResult<ApiResponse<ResponseDto>>> UploadFileAsync([FromForm, Required] IFormFile file,
         [FromQuery, Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
-            
-            if (string.IsNullOrWhiteSpace(servicesResult) || string.IsNullOrEmpty(servicesResult))
+
+            if (string.IsNullOrWhiteSpace(servicesResult.ResponseData) || string.IsNullOrEmpty(servicesResult.ResponseData))
             {
                 throw new NullReferenceException();
             }
 
-            return new ApiResponse<string>
+            return new ApiResponse<ResponseDto>
             {
                 Data = servicesResult,
                 ErrorDetails = string.Empty,
@@ -47,17 +47,17 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpDelete("{uuid}")]
-        public async Task<ActionResult<ApiResponse<string>>> DeleteFileAsync([Required, FromRoute] string uuid,
+        public async Task<ActionResult<ApiResponse<ResponseDto>>> DeleteFileAsync([Required, FromRoute] string uuid,
         [FromQuery, Required] string deletePassword)
         {
 
             var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
 
-            return servicesResult switch
+            return servicesResult.ResponseData switch
             {
-                "Invalid password!" => Forbid(servicesResult),
+                "Invalid password!" => Forbid(servicesResult.ResponseData),
                 "Already Deleted" => BadRequest(servicesResult),
-                _ => new ApiResponse<string>
+                _ => new ApiResponse<ResponseDto>
                 {
                     Data = servicesResult,
                     StatusCode = StatusCodes.Status200OK,
@@ -67,15 +67,15 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<string>> GetFileAsync([Required, FromRoute] string uuid)
+        public async Task<ActionResult<ResponseDto>> GetFileAsync([Required, FromRoute] string uuid)
         {
 
             var servicesResult = await _fileServices.GetFileAsync(uuid);
 
-            return servicesResult switch
+            return servicesResult.ResponseData switch
             {
                 "File not exists!" => NotFound(servicesResult),
-                _ => File(new FileStream(servicesResult,FileMode.Open),"file/file")
+                _ => File(new FileStream(servicesResult.ResponseData, FileMode.Open), "file/file")
             };
         }
     }
