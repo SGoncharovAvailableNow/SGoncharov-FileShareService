@@ -12,13 +12,13 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
             _context = context;
         }
 
-        public async Task AddUserAsync(User userEntity)
+        public async Task AddUserAsync(User userEntity, CancellationToken cancellationToken)
         {
-            await _context.Users.AddAsync(userEntity);
-            await _context.SaveChangesAsync();
+            _context.Users.Add(userEntity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdateUserAsync(string name, string email, Guid id)
+        public async Task UpdateUserAsync(string name, string email, Guid id, CancellationToken cancellationToken)
         {
             await _context.Users.Where(entity => entity.UserId == id)
                 .ExecuteUpdateAsync(entity => entity
@@ -26,10 +26,10 @@ namespace SGoncharovFileSharingService.Repository.UserRepository
                 .SetProperty(property => property.Name, name));
         }
 
-        public async Task<User?> GetUserByEmailAsync(string email)
+        public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken)
         {
             var user = await _context.Users
-                        .FirstOrDefaultAsync(entity => entity.Email == email);
+                        .FirstOrDefaultAsync(entity => entity.Email == email,cancellationToken);
 
             return user;
         }

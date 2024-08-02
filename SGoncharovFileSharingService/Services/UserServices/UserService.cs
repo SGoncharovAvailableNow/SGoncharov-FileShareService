@@ -26,13 +26,13 @@ namespace SGoncharovFileSharingService.Services.UserServices
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto)
+        public async Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto, CancellationToken cancellationToken)
         {
             User userEntity = _mapper.Map<User>(regUserDto);
 
             userEntity.Password = _passwordHasher.HashPassword(userEntity, userEntity.Password);
 
-            await _userRepository.AddUserAsync(userEntity);
+            await _userRepository.AddUserAsync(userEntity, cancellationToken);
 
             var loginUserDto = _mapper.Map<LoginUserDto>(userEntity);
 
@@ -41,13 +41,13 @@ namespace SGoncharovFileSharingService.Services.UserServices
             return loginUserDto;
         }
 
-        public async Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto)
+        public async Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email);
+            var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email, cancellationToken);
 
             if (user == null)
             {
-                throw new UserNotFoundException($"User with {authUserDto.Email} not found!");
+                throw new NotFoundException($"User with {authUserDto.Email} not found!");
             }
 
             var verifyResult = _passwordHasher
@@ -65,10 +65,10 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
         }
 
-        public async Task UpdateUserAsync(UserDto userDto, Guid id)
+        public async Task UpdateUserAsync(UserDto userDto, Guid id, CancellationToken cancellationToken)
         {
 
-            await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, id);
+            await _userRepository.UpdateUserAsync(userDto.Name, userDto.Email, id, cancellationToken);
 
         }
 

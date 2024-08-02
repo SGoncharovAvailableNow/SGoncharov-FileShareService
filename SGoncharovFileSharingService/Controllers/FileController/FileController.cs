@@ -25,7 +25,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         [FromQuery, Required] string deletePassword)
         {
 
-            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, ControllerExtension.GetUserId(this));
+            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, 
+            ControllerExtension.GetUserId(this), cancellationToken:default);
 
             if (string.IsNullOrWhiteSpace(servicesResult.ResponseData) || string.IsNullOrEmpty(servicesResult.ResponseData))
             {
@@ -42,10 +43,9 @@ namespace SGoncharovFileSharingService.Controllers.FileController
 
         [HttpDelete("{uuid}")]
         public async Task<ActionResult<ApiResponse<ResponseDto>>> DeleteFileAsync([Required, FromRoute] string fileId,
-        [FromQuery, Required] string deletePassword)
+        [FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
         {
-
-            var servicesResult = await _fileServices.DeleteFileAsync(fileId, deletePassword);
+            var servicesResult = await _fileServices.DeleteFileAsync(fileId, deletePassword, cancellationToken);
 
             return servicesResult.ResponseData switch
             {
@@ -64,7 +64,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         public async Task<ActionResult<ResponseDto>> GetFileAsync([Required, FromRoute] string fileId)
         {
 
-            var servicesResult = await _fileServices.GetFileAsync(fileId);
+            var servicesResult = await _fileServices.GetFileAsync(fileId, cancellationToken:default);
 
             return servicesResult.ResponseData switch
             {

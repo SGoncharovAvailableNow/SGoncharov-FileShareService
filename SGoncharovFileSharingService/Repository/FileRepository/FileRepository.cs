@@ -13,30 +13,30 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
             _context = context;
         }
 
-        public async Task CreateFileInfo(Models.Entities.FileEntities.FilesInfo fileEntity)
+        public async Task CreateFileInfoAsync(FilesInfo fileEntity, CancellationToken cancellationToken)
         {
-            await _context.Files.AddAsync(fileEntity);
-            await _context.SaveChangesAsync();
+            _context.Files.Add(fileEntity);
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<Models.Entities.FileEntities.FilesInfo> GetFileInfoAsync(string fileId)
+        public async Task<FilesInfo> GetFileInfoAsync(string fileId, CancellationToken cancellationToken)
         {
             return await _context.Files?
-                .FirstOrDefaultAsync(file => file.FileId == fileId);
+                .FirstOrDefaultAsync(file => file.FileId == fileId, cancellationToken);
         }
 
-        public async Task DeleteFileInfoAsync(string fileId)
+        public async Task DeleteFileInfoAsync(string fileId, CancellationToken cancellationToken)
         {
             await _context.Files
-                .Where(file => file.FileId == fileId )
-                .ExecuteDeleteAsync();
+                .Where(file => file.FileId == fileId)
+                .ExecuteDeleteAsync(cancellationToken);
         }
 
-        public async Task DeleteFileInfoByPathAsync(string path)
+        public async Task DeleteFileInfoByPathAsync(string path, CancellationToken cancellationToken)
         {
             await _context.Files
             .Where(file => file.FilePath == path)
-            .ExecuteDeleteAsync();    
+            .ExecuteDeleteAsync(cancellationToken);    
         }
     }
 }

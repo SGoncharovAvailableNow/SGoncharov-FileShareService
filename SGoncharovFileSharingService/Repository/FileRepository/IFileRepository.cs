@@ -4,13 +4,13 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
 {
     public interface IFileRepository
     {
-        Task CreateFileInfo(Models.Entities.FileEntities.FilesInfo fileEntity);
+        Task CreateFileInfoAsync(FilesInfo fileEntity, CancellationToken cancellationToken);
 
-        Task DeleteFileInfoAsync(string fileId);
+        Task DeleteFileInfoAsync(string fileId, CancellationToken cancellationToken);
         
-        Task<Models.Entities.FileEntities.FilesInfo> GetFileInfoAsync(string fileId);
+        Task<FilesInfo> GetFileInfoAsync(string fileId, CancellationToken cancellationToken);
 
-        Task DeleteFileInfoByPathAsync(string fileName);
+        Task DeleteFileInfoByPathAsync(string fileName, CancellationToken cancellationToken);
         
     }
 }

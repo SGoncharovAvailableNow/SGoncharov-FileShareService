@@ -25,7 +25,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                DeleteSharingFiles(stoppingToken);
+                DeleteSharingFiles(stoppingToken, stoppingToken);
                 Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             }
         }
@@ -37,7 +37,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
         return Task.CompletedTask;
     }
 
-    public async void DeleteSharingFiles(object? state)
+    public async void DeleteSharingFiles(object? state, CancellationToken cancellationToken)
     {
         using (var scopedRepository = _serviceScopeFactory.CreateScope())
         {
@@ -51,7 +51,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
                     continue;
                 }
                 File.Delete(sharedFile);
-                await fileRepository.DeleteFileInfoByPathAsync(sharedFile);
+                await fileRepository.DeleteFileInfoByPathAsync(sharedFile, cancellationToken);
             }
         }
     }

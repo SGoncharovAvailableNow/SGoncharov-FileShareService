@@ -26,12 +26,14 @@ namespace SGoncharovFileSharingService.Services.FileServices
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<ResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
+        public async Task<ResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, 
+        Guid userId, CancellationToken cancellationToken)
         {
             var fileEntity = new FilesInfo();
             fileEntity.FilePath = $"{fileEntity.FileId}_{formFile.FileName}";
 
-            using (var fileStream = new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath), FileMode.Create))
+            using (var fileStream = new FileStream(Path
+            .Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath), FileMode.Create))
             {
                 await formFile.CopyToAsync(fileStream);
             };
@@ -39,7 +41,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
             fileEntity.DeletePassword = _passwordHasher.HashPassword(fileEntity, deletePassword);
             fileEntity.UserId = userId;
 
-            await _fileRepository.CreateFileInfo(fileEntity);
+            await _fileRepository.CreateFileInfoAsync(fileEntity,cancellationToken);
 
             return new ResponseDto
             {
@@ -47,9 +49,9 @@ namespace SGoncharovFileSharingService.Services.FileServices
             };
         }
 
-        public async Task<ResponseDto> GetFileAsync(string fileId)
+        public async Task<ResponseDto> GetFileAsync(string fileId, CancellationToken cancellationToken)
         {
-            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId);
+            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId, cancellationToken);
 
             if (fileEntity == null)
             {
@@ -65,9 +67,9 @@ namespace SGoncharovFileSharingService.Services.FileServices
             };
         }
 
-        public async Task<ResponseDto> DeleteFileAsync(string fileId, string deletePass)
+        public async Task<ResponseDto> DeleteFileAsync(string fileId, string deletePass, CancellationToken cancellationToken)
         {
-            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId);
+            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId, cancellationToken);
 
             var verifyResult = _passwordHasher.VerifyHashedPassword(fileEntity, fileEntity.DeletePassword, deletePass);
 
@@ -79,7 +81,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
                 };
             }
 
-            await _fileRepository.DeleteFileInfoAsync(fileId);
+            await _fileRepository.DeleteFileInfoAsync(fileId,cancellationToken);
 
             if (!File.Exists(fileEntity.FilePath))
             {

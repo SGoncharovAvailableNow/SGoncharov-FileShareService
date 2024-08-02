@@ -6,10 +6,10 @@ namespace SGoncharovFileSharingService.Services.UserServices
 {
     public interface IUserServices
     {
-        Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto);
+        Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto, CancellationToken cancellationToken);
 
-        Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto);
+        Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto, CancellationToken cancellationToken);
 
-        Task UpdateUserAsync(UserDto userDto, Guid id);
+        Task UpdateUserAsync(UserDto userDto, Guid id, CancellationToken cancellationToken);
     }
 }

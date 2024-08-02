@@ -18,22 +18,20 @@ namespace SGoncharovFileSharingService.Controllers.UserController
     {
         private readonly IUserServices _userServices;
 
-        private readonly IMapper _mapper;
-
         private readonly IJwtTokenProvider _jwtTokenProvider;
 
         public UserController(IUserServices userServices, IMapper mapper, IJwtTokenProvider jwtTokenProvider)
         {
             _userServices = userServices;
-            _mapper = mapper;
             _jwtTokenProvider = jwtTokenProvider;
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<LoginUserDto>>> RegisterUserAsync([FromBody, Required] RegisterUserDto userDto)
+        public async Task<ActionResult<ApiResponse<LoginUserDto>>> RegisterUserAsync(
+            [FromBody, Required] RegisterUserDto userDto, CancellationToken cancellationToken)
         {
-            var servicesResponse = await _userServices.RegisterUserAsync(userDto);
+            var servicesResponse = await _userServices.RegisterUserAsync(userDto, cancellationToken);
 
             return servicesResponse switch
             {
@@ -50,9 +48,10 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<LoginUserDto>>> LoginUserAsync([FromBody, Required] AuthUserDto authUserDto)
+        public async Task<ActionResult<ApiResponse<LoginUserDto>>> LoginUserAsync(
+            [FromBody, Required] AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
-            var logDto = await _userServices.LoginUserAsync(authUserDto);
+            var logDto = await _userServices.LoginUserAsync(authUserDto, cancellationToken);
 
             if (logDto is null)
             {
@@ -70,9 +69,10 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto)
+        public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto,
+            CancellationToken cancellationToken)
         {
-            await _userServices.UpdateUserAsync(userDto, ControllerExtension.GetUserId(this));
+            await _userServices.UpdateUserAsync(userDto, ControllerExtension.GetUserId(this), cancellationToken);
 
             return Ok();
         }
