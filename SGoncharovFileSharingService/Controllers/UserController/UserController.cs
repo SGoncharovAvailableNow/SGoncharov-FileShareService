@@ -38,7 +38,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
             return servicesResponse switch
             {
                 null => throw new NullReferenceException(),
-                _=> new ApiResponse<LoginUserDto>
+                _ => new ApiResponse<LoginUserDto>
                 {
                     Data = servicesResponse,
                     ErrorDetails = "",
@@ -52,29 +52,16 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         [AllowAnonymous]
         public async Task<ActionResult<ApiResponse<LoginUserDto>>> LoginUserAsync([FromBody, Required] AuthUserDto authUserDto)
         {
-            var servicesResponse = await _userServices.LoginUserAsync(authUserDto);
-            var passHash = new PasswordHasher<User>();
+            var logDto = await _userServices.LoginUserAsync(authUserDto);
 
-            if (servicesResponse is null)
+            if (logDto is null)
             {
                 throw new NullReferenceException();
             }
 
-            var verifyResult = passHash
-            .VerifyHashedPassword(servicesResponse, servicesResponse.Password, authUserDto.Password);
-
-            if (verifyResult == PasswordVerificationResult.Failed)
-            {
-                return Unauthorized();
-            }
-
-            var loginUserDto = _mapper.Map<LoginUserDto>(servicesResponse);
-            loginUserDto.Token = _jwtTokenProvider
-            .GetJwtToken(servicesResponse.UserId, servicesResponse.Name);
-
             return new ApiResponse<LoginUserDto>
             {
-                Data = loginUserDto,
+                Data = logDto,
                 ErrorDetails = string.Empty,
                 StatusCode = StatusCodes.Status200OK
             };

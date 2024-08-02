@@ -16,16 +16,18 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public FileServices(IFileRepository fileRepository, IWebHostEnvironment webHostEnvironment)
+        private readonly IPasswordHasher<FilesInfo> _passwordHasher;
+
+        public FileServices(IFileRepository fileRepository, IWebHostEnvironment webHostEnvironment, 
+        IPasswordHasher<FilesInfo> passwordHasher)
         {
             _fileRepository = fileRepository;
             _webHostEnvironment = webHostEnvironment;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<ResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, Guid userId)
         {
-            var passwordHasher = new PasswordHasher<FilesInfo>();
-
             var fileEntity = new FilesInfo();
             fileEntity.FilePath = $"{fileEntity.FileId}_{formFile.FileName}";
 
@@ -34,7 +36,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
                 await formFile.CopyToAsync(fileStream);
             };
 
-            fileEntity.DeletePassword = passwordHasher.HashPassword(fileEntity, deletePassword);
+            fileEntity.DeletePassword = _passwordHasher.HashPassword(fileEntity, deletePassword);
             fileEntity.UserId = userId;
 
             await _fileRepository.CreateFileInfo(fileEntity);
@@ -65,11 +67,9 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
         public async Task<ResponseDto> DeleteFileAsync(string fileId, string deletePass)
         {
-            var passwordHasher = new PasswordHasher<FilesInfo>();
-
             var fileEntity = await _fileRepository.GetFileInfoAsync(fileId);
 
-            var verifyResult = passwordHasher.VerifyHashedPassword(fileEntity, fileEntity.DeletePassword, deletePass);
+            var verifyResult = _passwordHasher.VerifyHashedPassword(fileEntity, fileEntity.DeletePassword, deletePass);
 
             if (verifyResult == PasswordVerificationResult.Failed)
             {

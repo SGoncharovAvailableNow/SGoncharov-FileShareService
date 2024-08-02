@@ -15,21 +15,22 @@ namespace SGoncharovFileSharingService.Services.UserServices
         private readonly IUserRepository _userRepository;
         private readonly IJwtTokenProvider _jwtTokenProvider;
         private readonly IMapper _mapper;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserServices(IUserRepository userRepository, IJwtTokenProvider jwtTokenProvider, IMapper mapper)
+        public UserServices(IUserRepository userRepository, IJwtTokenProvider jwtTokenProvider, 
+        IMapper mapper, IPasswordHasher<User> passwordHasher)
         {
             _userRepository = userRepository;
             _jwtTokenProvider = jwtTokenProvider;
             _mapper = mapper;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto)
         {
-            var passwordHasher = new PasswordHasher<User>();
-
             User userEntity = _mapper.Map<User>(regUserDto);
 
-            userEntity.Password = passwordHasher.HashPassword(userEntity, userEntity.Password);
+            userEntity.Password = _passwordHasher.HashPassword(userEntity, userEntity.Password);
 
             await _userRepository.AddUserAsync(userEntity);
 
@@ -42,16 +43,14 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
         public async Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto)
         {
-            var passHash = new PasswordHasher<User>();
-
             var user = await _userRepository.GetUserByEmailAsync(authUserDto.Email);
-            
+
             if (user == null)
             {
                 throw new UserNotFoundException($"User with {authUserDto.Email} not found!");
             }
 
-            var verifyResult = passHash
+            var verifyResult = _passwordHasher
             .VerifyHashedPassword(user, user.Password, authUserDto.Password);
 
             if (verifyResult == PasswordVerificationResult.Failed)
@@ -59,8 +58,10 @@ namespace SGoncharovFileSharingService.Services.UserServices
                 throw new WrongPasswordException("Invalid password!");
             }
 
-            
+            var logDto = _mapper.Map<LoginUserDto>(user);
+            logDto.Token = _jwtTokenProvider.GetJwtToken(user.UserId, user.Name);
 
+            return logDto;
 
         }
 

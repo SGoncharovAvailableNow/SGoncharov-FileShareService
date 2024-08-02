@@ -8,7 +8,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
     {
         Task<LoginUserDto> RegisterUserAsync(RegisterUserDto regUserDto);
 
-        Task<User> LoginUserAsync(AuthUserDto authUserDto);
+        Task<LoginUserDto> LoginUserAsync(AuthUserDto authUserDto);
 
         Task UpdateUserAsync(UserDto userDto, Guid id);
     }
