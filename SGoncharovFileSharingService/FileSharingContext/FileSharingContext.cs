@@ -17,7 +17,7 @@ namespace SGoncharovFileSharingService.FileSharingContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FilesInfo>().Property(p => p.Uuid).HasValueGenerator(typeof(Nanoid));
+            modelBuilder.Entity<FilesInfo>().Property(p => p.FileId).HasValueGenerator(typeof(Nanoid));
             modelBuilder.Entity<User>().HasAlternateKey(p => p.Email);
         }
     }

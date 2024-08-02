@@ -41,11 +41,11 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpDelete("{uuid}")]
-        public async Task<ActionResult<ApiResponse<ResponseDto>>> DeleteFileAsync([Required, FromRoute] string uuid,
+        public async Task<ActionResult<ApiResponse<ResponseDto>>> DeleteFileAsync([Required, FromRoute] string fileId,
         [FromQuery, Required] string deletePassword)
         {
 
-            var servicesResult = await _fileServices.DeleteFileAsync(uuid, deletePassword);
+            var servicesResult = await _fileServices.DeleteFileAsync(fileId, deletePassword);
 
             return servicesResult.ResponseData switch
             {
@@ -61,10 +61,10 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpGet("{uuid}")]
-        public async Task<ActionResult<ResponseDto>> GetFileAsync([Required, FromRoute] string uuid)
+        public async Task<ActionResult<ResponseDto>> GetFileAsync([Required, FromRoute] string fileId)
         {
 
-            var servicesResult = await _fileServices.GetFileAsync(uuid);
+            var servicesResult = await _fileServices.GetFileAsync(fileId);
 
             return servicesResult.ResponseData switch
             {

@@ -12,7 +12,8 @@ using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.UserController
 {
-    [ApiController, Route("api/v1/users")]
+    [ApiController]
+    [Route("api/v1/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
@@ -36,12 +37,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
             return servicesResponse switch
             {
-                null => new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = "Email already exist!",
-                    StatusCode = 400
-                },
+                null => throw new NullReferenceException(),
                 _=> new ApiResponse<LoginUserDto>
                 {
                     Data = servicesResponse,
@@ -61,12 +57,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
             if (servicesResponse is null)
             {
-                return new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = $"User with {authUserDto.Email} not exists!",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
+                throw new NullReferenceException();
             }
 
             var verifyResult = passHash
@@ -74,12 +65,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
             if (verifyResult == PasswordVerificationResult.Failed)
             {
-                return new ApiResponse<LoginUserDto>
-                {
-                    Data = null,
-                    ErrorDetails = $"Invalid Password!",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                };
+                return Unauthorized();
             }
 
             var loginUserDto = _mapper.Map<LoginUserDto>(servicesResponse);

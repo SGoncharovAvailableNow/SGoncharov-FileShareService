@@ -6,9 +6,9 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
     {
         Task CreateFileInfo(Models.Entities.FileEntities.FilesInfo fileEntity);
 
-        Task DeleteFileInfoAsync(string uuid);
+        Task DeleteFileInfoAsync(string fileId);
         
-        Task<Models.Entities.FileEntities.FilesInfo> GetFileInfoAsync(string uuid);
+        Task<Models.Entities.FileEntities.FilesInfo> GetFileInfoAsync(string fileId);
 
         Task DeleteFileInfoByPathAsync(string fileName);
         

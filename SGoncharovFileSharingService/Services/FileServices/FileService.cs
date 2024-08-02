@@ -27,7 +27,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
             var passwordHasher = new PasswordHasher<FilesInfo>();
 
             var fileEntity = new FilesInfo();
-            fileEntity.FilePath = $"{fileEntity.Uuid}_{formFile.FileName}";
+            fileEntity.FilePath = $"{fileEntity.FileId}_{formFile.FileName}";
 
             using (var fileStream = new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath), FileMode.Create))
             {
@@ -41,13 +41,13 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
             return new ResponseDto
             {
-                ResponseData = fileEntity.Uuid
+                ResponseData = fileEntity.FileId
             };
         }
 
-        public async Task<ResponseDto> GetFileAsync(string uuid)
+        public async Task<ResponseDto> GetFileAsync(string fileId)
         {
-            var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
+            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId);
 
             if (fileEntity == null)
             {
@@ -63,11 +63,11 @@ namespace SGoncharovFileSharingService.Services.FileServices
             };
         }
 
-        public async Task<ResponseDto> DeleteFileAsync(string uuid, string deletePass)
+        public async Task<ResponseDto> DeleteFileAsync(string fileId, string deletePass)
         {
             var passwordHasher = new PasswordHasher<FilesInfo>();
 
-            var fileEntity = await _fileRepository.GetFileInfoAsync(uuid);
+            var fileEntity = await _fileRepository.GetFileInfoAsync(fileId);
 
             var verifyResult = passwordHasher.VerifyHashedPassword(fileEntity, fileEntity.DeletePassword, deletePass);
 
@@ -79,7 +79,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
                 };
             }
 
-            await _fileRepository.DeleteFileInfoAsync(uuid);
+            await _fileRepository.DeleteFileInfoAsync(fileId);
 
             if (!File.Exists(fileEntity.FilePath))
             {

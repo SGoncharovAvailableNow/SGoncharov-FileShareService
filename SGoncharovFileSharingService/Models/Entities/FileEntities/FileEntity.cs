@@ -7,8 +7,7 @@ namespace SGoncharovFileSharingService.Models.Entities.FileEntities
 {
     public class FilesInfo
     {
-        [Key]
-        public string Uuid { get; set; }
+        public string FileId { get; set; }
         public string FilePath { get; set; }
         public string DeletePassword { get; set; }
         public Guid UserId { get; set; }
