@@ -25,7 +25,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         [FromQuery, Required] string deletePassword)
         {
 
-            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, ControllerExtension.GetUserId(HttpContext));
+            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, ControllerExtension.GetUserId(this));
 
             if (string.IsNullOrWhiteSpace(servicesResult.ResponseData) || string.IsNullOrEmpty(servicesResult.ResponseData))
             {

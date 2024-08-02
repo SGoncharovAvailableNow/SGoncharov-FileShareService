@@ -85,7 +85,7 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         [Authorize]
         public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto)
         {
-            await _userServices.UpdateUserAsync(userDto, ControllerExtension.GetUserId(HttpContext));
+            await _userServices.UpdateUserAsync(userDto, ControllerExtension.GetUserId(this));
 
             return Ok();
         }
