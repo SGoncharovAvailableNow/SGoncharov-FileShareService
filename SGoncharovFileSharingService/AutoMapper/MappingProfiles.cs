@@ -5,10 +5,16 @@ namespace SGoncharovFileSharingService.AutoMapper
 {
     public class MappingProfiles : Profile
     {
-        public MappingProfiles() 
+        public MappingProfiles()
         {
-            CreateMap<User,LoginUserDto>().ReverseMap();
-            CreateMap<User, RegisterUserDto>().ReverseMap();
+            CreateMap<User, LoginUserDto>()
+            .ForMember(destinationMember => destinationMember.Email, opt => opt.MapFrom(sourceMember => sourceMember.Email))
+            .ForMember(destinationMember => destinationMember.UserId, opt => opt.MapFrom(sourceMember => sourceMember.UserId))
+            .ForMember(destinationMember => destinationMember.Name, opt => opt.MapFrom(sourceMember => sourceMember.Name));
+
+            CreateMap<User, RegisterUserDto>()
+            .ForMember(destinationMember => destinationMember.Email, opt => opt.MapFrom(sourceMember => sourceMember.Email))
+            .ForMember(destinationMember => destinationMember.Name, opt => opt.MapFrom(sourceMember => sourceMember.Name));
         }
     }
 }
