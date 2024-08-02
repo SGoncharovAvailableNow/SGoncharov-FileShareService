@@ -20,18 +20,12 @@ namespace SGoncharovFileSharingService.Controllers.FileController
             _fileServices = fileServices;
         }
 
-        private Guid GetUserId()
-        {
-            Guid.TryParse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value, out Guid guidFromClaim);
-            return guidFromClaim;
-        }
-
         [HttpPost]
         public async Task<ActionResult<ApiResponse<ResponseDto>>> UploadFileAsync([FromForm, Required] IFormFile file,
         [FromQuery, Required] string deletePassword)
         {
 
-            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, GetUserId());
+            var servicesResult = await _fileServices.UploadFileAsync(file, deletePassword, ControllerExtension.GetUserId(HttpContext));
 
             if (string.IsNullOrWhiteSpace(servicesResult.ResponseData) || string.IsNullOrEmpty(servicesResult.ResponseData))
             {

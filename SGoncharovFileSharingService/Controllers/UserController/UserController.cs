@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace SGoncharovFileSharingService.Controllers.UserController
 {
-    [ApiController, Route("/users")]
+    [ApiController, Route("api/v1/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
@@ -99,17 +99,10 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         [Authorize]
         public async Task<IActionResult> UpdateUserInfoAsync([Required, FromBody] UserDto userDto)
         {
-            await _userServices.UpdateUserAsync(userDto, GetGuidFromClaim());
+            await _userServices.UpdateUserAsync(userDto, ControllerExtension.GetUserId(HttpContext));
 
             return Ok();
         }
 
-        private Guid GetGuidFromClaim()
-        {
-            Guid guid;
-            Guid.TryParse(User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value,out guid);
-
-            return guid;
-        }
     }
 }
