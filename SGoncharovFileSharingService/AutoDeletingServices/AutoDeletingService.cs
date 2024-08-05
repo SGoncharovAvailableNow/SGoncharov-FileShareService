@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Extensions.Options;
 using SGoncharovFileSharingService.Options;
 using SGoncharovFileSharingService.Repository.FileRepository;
 using SGoncharovFileSharingService.Services.FileServices;
@@ -13,9 +14,9 @@ public class AutoDeletingService : BackgroundService, IDisposable
 
     private readonly ILogger _logger;
 
-    private readonly AutoDeletingServiceOptions _options;
+    private readonly IOptions<AutoDeletingServiceOptions> _options;
 
-    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory,ILogger logger, AutoDeletingServiceOptions options)
+    public AutoDeletingService(IWebHostEnvironment webHostEnvironment, IServiceScopeFactory scopeFactory,ILogger logger, IOptions<AutoDeletingServiceOptions> options)
     {
         _webHostEnvironment = webHostEnvironment;
         _serviceScopeFactory = scopeFactory;
@@ -30,7 +31,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
             while (!stoppingToken.IsCancellationRequested)
             {
                 DeleteSharingFiles(stoppingToken, stoppingToken);
-                await Task.Delay(TimeSpan.FromDays(_options.DaysInterval), stoppingToken);
+                await Task.Delay(TimeSpan.FromDays(_options.Value.DaysInterval), stoppingToken);
             }
         }
         catch (System.Exception ex)
@@ -48,7 +49,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
 
             foreach (var sharedFile in sharedFilesDirectory)
             {
-                if (File.GetCreationTimeUtc(sharedFile).AddDays(_options.DaysInterval) > DateTime.UtcNow)
+                if (File.GetCreationTimeUtc(sharedFile).AddDays(_options.Value.DaysInterval) > DateTime.UtcNow)
                 {
                     continue;
                 }

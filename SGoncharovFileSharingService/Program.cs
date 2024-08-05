@@ -2,6 +2,8 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SGoncharovFileSharingService;
 using SGoncharovFileSharingService.AutoMapper;
@@ -37,9 +39,7 @@ builder.Services.AddScoped<IFileServices,FileServices>();
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<IPasswordHasher<User>,PasswordHasher<User>>();
 builder.Services.AddScoped<IPasswordHasher<FilesInfo>,PasswordHasher<FilesInfo>>();
-builder.Services.Configure<AutoDeletingServiceOptions>(
-    builder.Configuration.GetSection(
-        key: nameof(AutoDeletingServiceOptions)));
+builder.Services.AddOptions<AutoDeletingServiceOptions>("AutoDeletingServiceOptions");
 
 
 builder.Services.AddControllers();
