@@ -38,7 +38,7 @@ namespace SGoncharovFileSharingService.Controllers.FileController
             return new ApiResponse<UploadFileRequestResponseDTO>
             {
                 Data = _mapper.Map<UploadFileRequestResponseDTO>(fileServiceResponseDto),
-                ErrorDetails = string.Empty,
+                ErrorDetails = null,
                 StatusCode = 201
             };
         }
@@ -52,8 +52,8 @@ namespace SGoncharovFileSharingService.Controllers.FileController
             return new ApiResponse<DeleteFileRequestResponseDTO>
             {
                 Data = _mapper.Map<DeleteFileRequestResponseDTO>(fileServiceResponseDto),
-                StatusCode = StatusCodes.Status200OK,
-                ErrorDetails = string.Empty
+                ErrorDetails = null,
+                StatusCode = StatusCodes.Status200OK
             };
         }
 
