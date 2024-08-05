@@ -53,6 +53,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
                 {
                     continue;
                 }
+
                 File.Delete(sharedFile);
                 await fileRepository.DeleteFileInfoByPathAsync(sharedFile, cancellationToken);
             }
