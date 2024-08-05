@@ -33,8 +33,6 @@ public class AutoDeletingService : BackgroundService, IDisposable
         {
             _logger.LogInformation(ex.Message);
         }
-
-        return Task.CompletedTask;
     }
 
     public async void DeleteSharingFiles(object? state, CancellationToken cancellationToken)
