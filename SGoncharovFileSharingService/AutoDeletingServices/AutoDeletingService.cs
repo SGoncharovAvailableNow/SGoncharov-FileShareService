@@ -31,7 +31,7 @@ public class AutoDeletingService : BackgroundService, IDisposable
         }
         catch (System.Exception ex)
         {
-            _logger.LogInformation(ex.Message);
+            _logger.LogError(ex,ex.Message);
         }
     }
 
