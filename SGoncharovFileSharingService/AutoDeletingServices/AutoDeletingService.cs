@@ -19,14 +19,14 @@ public class AutoDeletingService : BackgroundService, IDisposable
         _logger = logger;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         try
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 DeleteSharingFiles(stoppingToken, stoppingToken);
-                Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
             }
         }
         catch (System.Exception ex)
