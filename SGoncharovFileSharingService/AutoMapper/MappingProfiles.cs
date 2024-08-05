@@ -2,6 +2,7 @@
 using SGoncharovFileSharingService.Models.ControllerDto;
 using SGoncharovFileSharingService.Models.ControllerResponseDto;
 using SGoncharovFileSharingService.Models.DTO;
+using SGoncharovFileSharingService.Models.DTO.FileServiceDTO;
 using SGoncharovFileSharingService.Models.Entities.UserEntities;
 namespace SGoncharovFileSharingService.AutoMapper
 {
@@ -24,10 +25,11 @@ namespace SGoncharovFileSharingService.AutoMapper
                 .ForMember(destinationMember => destinationMember.UserId, opt => opt.MapFrom(sourceMember => sourceMember.UserId))
                 .ForMember(destinationMember => destinationMember.Token, opt => opt.MapFrom(sourceMember => sourceMember.Token));
 
-            CreateMap<FileControllerResponseDto, FileServiceResponseDto>()
-                .ForMember(destinationMember => destinationMember.ResponseData, opt => opt.MapFrom(sourceMember => sourceMember.Data));
+            CreateMap<UploadFileRequestResponseDTO, UploadFileDTO>()
+                .ForMember(destinationMember => destinationMember.UploadFileData, opt => opt.MapFrom(sourceMember => sourceMember.UploadFileData));
 
-
+            CreateMap<DeleteFileRequestResponseDTO, DeleteFileDTO>()
+                .ForMember(destinationMember => destinationMember.DeleteInfo, opt => opt.MapFrom(sourceMember => sourceMember.DeleteInfo));
         }
     }
 }

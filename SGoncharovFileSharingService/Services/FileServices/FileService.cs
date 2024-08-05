@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.FileProviders;
 using NanoidDotNet;
-using SGoncharovFileSharingService.Models.DTO;
+using SGoncharovFileSharingService.Models.DTO.FileServiceDTO;
 using SGoncharovFileSharingService.Models.Entities.FileEntities;
 using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Repository.FileRepository;
@@ -30,14 +30,14 @@ namespace SGoncharovFileSharingService.Services.FileServices
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<FileServiceResponseDto> UploadFileAsync(IFormFile formFile, string deletePassword, 
+        public async Task<UploadFileDTO> UploadFileAsync(IFormFile formFile, string deletePassword, 
         Guid userId, CancellationToken cancellationToken)
         {
             var fileEntity = new FilesInfo();
-            fileEntity.FilePath = $"{fileEntity.FileId}_{formFile.FileName}";
+            fileEntity.FileName = $"{fileEntity.FileId}_{formFile.FileName}";
 
             using (var fileStream = new FileStream(Path
-            .Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath), FileMode.Create))
+            .Combine(_webHostEnvironment.WebRootPath, fileEntity.FileName), FileMode.Create))
             {
                 await formFile.CopyToAsync(fileStream);
             };
@@ -48,13 +48,13 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
             await _fileRepository.CreateFileInfoAsync(fileEntity,cancellationToken);
 
-            return new FileServiceResponseDto
+            return new UploadFileDTO
             {
-                ResponseData = fileEntity.FileId
+                UploadFileData = fileEntity.FileId
             };
         }
 
-        public async Task<FileServiceResponseDto> GetFileAsync(string fileId, CancellationToken cancellationToken)
+        public async Task<GetFileDTO> GetFileAsync(string fileId, CancellationToken cancellationToken)
         {
             var fileEntity = await _fileRepository.GetFileInfoAsync(fileId, cancellationToken);
 
@@ -63,13 +63,14 @@ namespace SGoncharovFileSharingService.Services.FileServices
                 throw new NotFoundException($"File not found: {fileId}");
             }
 
-            return new FileServiceResponseDto
+            return new GetFileDTO
             {
-                ResponseData = Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FilePath)
+                FileData = new FileStream(Path.Combine(_webHostEnvironment.WebRootPath, fileEntity.FileName),FileMode.Open),
+                FileName = fileEntity.FileName
             };
         }
 
-        public async Task<FileServiceResponseDto> DeleteFileAsync(string fileId, string deletePass, CancellationToken cancellationToken)
+        public async Task<DeleteFileDTO> DeleteFileAsync(string fileId, string deletePass, CancellationToken cancellationToken)
         {
             var fileEntity = await _fileRepository.GetFileInfoAsync(fileId, cancellationToken);
 
@@ -82,16 +83,16 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
             await _fileRepository.DeleteFileInfoAsync(fileId, cancellationToken);
 
-            if (!File.Exists(fileEntity.FilePath))
+            if (!File.Exists(fileEntity.FileName))
             {
                 throw new NotFoundException($"File not found: {fileId}");
             }
 
-            File.Delete(fileEntity.FilePath);
+            File.Delete(fileEntity.FileName);
 
-            return new FileServiceResponseDto
+            return new DeleteFileDTO
             {
-                ResponseData = "Deleted"
+                DeleteInfo = "Deleted"
             };
         }
     }

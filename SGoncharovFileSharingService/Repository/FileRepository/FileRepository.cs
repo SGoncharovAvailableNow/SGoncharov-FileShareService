@@ -35,7 +35,7 @@ namespace SGoncharovFileSharingService.Repository.FileRepository
         public async Task DeleteFileInfoByPathAsync(string path, CancellationToken cancellationToken)
         {
             await _context.Files
-            .Where(file => file.FilePath == path)
+            .Where(file => file.FileName == path)
             .ExecuteDeleteAsync(cancellationToken);
         }
     }

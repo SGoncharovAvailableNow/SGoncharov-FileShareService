@@ -7,6 +7,7 @@ using SGoncharovFileSharingService.Models.ResponseDto;
 using SGoncharovFileSharingService.Services.FileServices;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading;
 
@@ -28,48 +29,41 @@ namespace SGoncharovFileSharingService.Controllers.FileController
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<FileControllerResponseDto>>> UploadFileAsync([FromForm, Required] IFormFile file,
+        public async Task<ActionResult<ApiResponse<UploadFileRequestResponseDTO>>> UploadFileAsync([FromForm, Required] IFormFile file,
         [FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
         {
-
             var fileServiceResponseDto = await _fileServices.UploadFileAsync(file, deletePassword,
             this.GetUserId(), cancellationToken);
 
-            if (string.IsNullOrWhiteSpace(fileServiceResponseDto.ResponseData) || string.IsNullOrEmpty(fileServiceResponseDto.ResponseData))
+            return new ApiResponse<UploadFileRequestResponseDTO>
             {
-                throw new NullReferenceException();
-            }
-
-            return new ApiResponse<FileControllerResponseDto>
-            {
-                Data = _mapper.Map<FileControllerResponseDto>(fileServiceResponseDto),
+                Data = _mapper.Map<UploadFileRequestResponseDTO>(fileServiceResponseDto),
                 ErrorDetails = string.Empty,
                 StatusCode = 201
             };
         }
 
         [HttpDelete("{fileId}")]
-        public async Task<ActionResult<ApiResponse<FileControllerResponseDto>>> DeleteFileAsync(
-            [Required, FromRoute] string fileId,[FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
+        public async Task<ActionResult<ApiResponse<DeleteFileRequestResponseDTO>>> DeleteFileAsync(
+            [Required, FromRoute] string fileId, [FromQuery, Required] string deletePassword, CancellationToken cancellationToken)
         {
             var fileServiceResponseDto = await _fileServices.DeleteFileAsync(fileId, deletePassword, cancellationToken);
 
-            return new ApiResponse<FileControllerResponseDto>
+            return new ApiResponse<DeleteFileRequestResponseDTO>
             {
-                Data = _mapper.Map<FileControllerResponseDto>(fileServiceResponseDto),
+                Data = _mapper.Map<DeleteFileRequestResponseDTO>(fileServiceResponseDto),
                 StatusCode = StatusCodes.Status200OK,
                 ErrorDetails = string.Empty
             };
         }
 
         [HttpGet("{fileId}")]
-        public async Task<ActionResult<FileControllerResponseDto>> GetFileAsync([Required, FromRoute] string fileId, 
+        public async Task<IActionResult> GetFileAsync([Required, FromRoute] string fileId,
             CancellationToken cancellationToken)
         {
-
             var servicesResult = await _fileServices.GetFileAsync(fileId, cancellationToken);
 
-            return File(new FileStream(servicesResult.ResponseData, FileMode.Open), "file/file");
+            return File(servicesResult.FileData, MediaTypeNames.Application.Octet, servicesResult.FileName);
         }
     }
 
