@@ -22,6 +22,8 @@ Env.Load(".env");
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddLogging();
+
 builder.Services.AddHostedService<AutoDeletingService>();
 
 builder.Services.AddDbContext<FileShareContext>(

@@ -37,15 +37,11 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         {
             var logDto = await _userServices.RegisterUserAsync(userDto, cancellationToken);
 
-            return logDto switch
+            return new ApiResponse<UsersControllerLoginDto>
             {
-                null => throw new NullReferenceException(),
-                _ => new ApiResponse<UsersControllerLoginDto>
-                {
-                    Data = _mapper.Map<UsersControllerLoginDto>(logDto),
-                    ErrorDetails = "",
-                    StatusCode = 200
-                }
+                Data = _mapper.Map<UsersControllerLoginDto>(logDto),
+                ErrorDetails = null,
+                StatusCode = 200
             };
 
         }
@@ -57,15 +53,10 @@ namespace SGoncharovFileSharingService.Controllers.UserController
         {
             var logDto = await _userServices.LoginUserAsync(authUserDto, cancellationToken);
 
-            if (logDto is null)
-            {
-                throw new NullReferenceException();
-            }
-
             return new ApiResponse<UsersControllerLoginDto>
             {
                 Data = _mapper.Map<UsersControllerLoginDto>(logDto),
-                ErrorDetails = string.Empty,
+                ErrorDetails = null,
                 StatusCode = StatusCodes.Status200OK
             };
 

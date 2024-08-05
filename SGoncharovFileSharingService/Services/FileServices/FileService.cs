@@ -78,7 +78,7 @@ namespace SGoncharovFileSharingService.Services.FileServices
 
             if (verifyResult == PasswordVerificationResult.Failed)
             {
-                throw new WrongPasswordException("Wrong password!");
+                throw new BadRequestException("Wrong password!");
             }
 
             await _fileRepository.DeleteFileInfoAsync(fileId, cancellationToken);

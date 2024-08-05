@@ -55,7 +55,7 @@ namespace SGoncharovFileSharingService.Services.UserServices
 
             if (verifyResult == PasswordVerificationResult.Failed)
             {
-                throw new WrongPasswordException("Invalid password!");
+                throw new BadRequestException("Invalid password!");
             }
 
             var logDto = _mapper.Map<LoginUserDto>(user);
