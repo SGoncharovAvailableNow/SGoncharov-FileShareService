@@ -19,7 +19,7 @@ namespace SGoncharovFileSharingService.AutoMapper
             .ForMember(destinationMember => destinationMember.Email, opt => opt.MapFrom(sourceMember => sourceMember.Email))
             .ForMember(destinationMember => destinationMember.Name, opt => opt.MapFrom(sourceMember => sourceMember.Name));
 
-            CreateMap<UsersControllerLoginDto, LoginUserDto>()
+            CreateMap<RegisterUserRequestResponseDTO, LoginUserDto>()
                 .ForMember(destinationMember => destinationMember.Name, opt => opt.MapFrom(sourceMember => sourceMember.Name))
                 .ForMember(destinationMember => destinationMember.Email, opt => opt.MapFrom(sourceMember => sourceMember.Email))
                 .ForMember(destinationMember => destinationMember.UserId, opt => opt.MapFrom(sourceMember => sourceMember.UserId))

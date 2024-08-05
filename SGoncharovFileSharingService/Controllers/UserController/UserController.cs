@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SGoncharovFileSharingService.JwtTokenProvider;
 using SGoncharovFileSharingService.Models.ControllerDto;
+using SGoncharovFileSharingService.Models.ControllerResponseDto;
 using SGoncharovFileSharingService.Models.DTO;
 using SGoncharovFileSharingService.Models.Entities.UserEntities;
 using SGoncharovFileSharingService.Models.ResponseDto;
@@ -32,14 +33,14 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<UsersControllerLoginDto>>> RegisterUserAsync(
+        public async Task<ActionResult<ApiResponse<RegisterUserRequestResponseDTO>>> RegisterUserAsync(
             [FromBody, Required] RegisterUserDto userDto, CancellationToken cancellationToken)
         {
             var logDto = await _userServices.RegisterUserAsync(userDto, cancellationToken);
 
-            return new ApiResponse<UsersControllerLoginDto>
+            return new ApiResponse<RegisterUserRequestResponseDTO>
             {
-                Data = _mapper.Map<UsersControllerLoginDto>(logDto),
+                Data = _mapper.Map<RegisterUserRequestResponseDTO>(logDto),
                 ErrorDetails = null,
                 StatusCode = 200
             };
@@ -48,14 +49,14 @@ namespace SGoncharovFileSharingService.Controllers.UserController
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<ApiResponse<UsersControllerLoginDto>>> LoginUserAsync(
+        public async Task<ActionResult<ApiResponse<LoginUserRequestResponseDTO>>> LoginUserAsync(
             [FromBody, Required] AuthUserDto authUserDto, CancellationToken cancellationToken)
         {
             var logDto = await _userServices.LoginUserAsync(authUserDto, cancellationToken);
 
-            return new ApiResponse<UsersControllerLoginDto>
+            return new ApiResponse<LoginUserRequestResponseDTO>
             {
-                Data = _mapper.Map<UsersControllerLoginDto>(logDto),
+                Data = _mapper.Map<LoginUserRequestResponseDTO>(logDto),
                 ErrorDetails = null,
                 StatusCode = StatusCodes.Status200OK
             };

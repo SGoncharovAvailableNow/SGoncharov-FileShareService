@@ -2,7 +2,7 @@
 
 namespace SGoncharovFileSharingService.Models.ControllerDto
 {
-    public class UsersControllerLoginDto
+    public class RegisterUserRequestResponseDTO
     {
         [Length(3, 120, ErrorMessage = $"Invalid parameter length: {nameof(Name)}")]
         public string Name { get; set; }
